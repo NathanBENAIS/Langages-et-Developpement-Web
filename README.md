@@ -1,3 +1,8 @@
+### ------ Éditeur du site
+URL : https://nathanbenais.github.io/Langages-et-Developpement-Web/
+Conception du projet : Sofiane SEHAKI, Nathan BENAIS
+
+
 ### ------ Descriptif - Mobilité durable
 
 Le développement de solutions de mobilité intelligente et durable vise à réduire l'empreinte carbone tout en améliorant 
