@@ -3,7 +3,8 @@ URL : https://nathanbenais.github.io/Langages-et-Developpement-Web/data.html
 
 Concepteur du projet : Sofiane SEHAKI, Nathan BENAIS
 
-<img src="https://chart.googleapis.com/chart?cht=qr&chl=https%3A%2F%2Fdocs.google.com%2Fforms%2Fd%2Fe%2F1FAIpQLSfe5JXMo7y5x3Lesemfr34n2x0sLUwDZaJiAp88mpDWS8DqFg%2Fviewform%3Fvc%3D0%26c%3D0%26w%3D1%26flr%3D0&chs=180x180&choe=UTF-8&chld=L|2" rel="nofollow" alt="qr code"><a href="fr.qr-code-generator.com/" border="0" style="cursor:default" rel="nofollow"></a>
+<img width="242" alt="image" src="https://github.com/user-attachments/assets/a52b3647-9bbc-48e2-b7c4-aa48db886e89">
+
 
 ### ------ Descriptif - Mobilité durable
 
