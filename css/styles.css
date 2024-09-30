@@ -1,9 +1,16 @@
 body {
-    padding: 20px;
+    background-color: #f8f9fa;
 }
+
 .card {
-    margin-bottom: 20px;
+    border: 1px solid #007bff;
 }
+
+.card-header {
+    background-color: #007bff;
+    color: white;
+}
+
 .card-body {
-    display: none;
+    background-color: #e9ecef;
 }
