@@ -11,3 +11,8 @@ body {
 .card-body {
     display: none;
 }
+
+#map {
+    height: 400px; /* Hauteur de la carte */
+    margin-top: 20px; /* Marge au-dessus de la carte */
+}
