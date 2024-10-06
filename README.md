@@ -65,6 +65,7 @@ désengorger le trafic, et améliorer la qualité de l'air dans les zones urbain
 ------ Prévision et optimisation des besoins en énergie pour les véhicules électriques  
 
 ------ **Diagramme de flux de votre projet**  
-<img width="554" alt="flux" src="https://github.com/user-attachments/assets/c45b2ea3-b2ea-4ee2-9ae0-45b31baaa508">
+<img width="601" alt="image" src="https://github.com/user-attachments/assets/d9740282-0f66-4718-ad4b-d14d10f22c34">
+
 
 
