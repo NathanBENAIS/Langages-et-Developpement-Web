@@ -11,3 +11,8 @@ body {
 .card-body {
     display: none;
 }
+
+#map {
+    width: 100%; /* S'assurer que la carte prend toute la largeur */
+    height: 400px; /* Hauteur définie pour la carte */
+}
