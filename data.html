@@ -7,6 +7,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://unpkg.com/leaflet/dist/leaflet.css" rel="stylesheet" />
     <link href="css/styles.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
@@ -19,7 +20,6 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Carte interactive</a>
-                
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Graphiques</a>
@@ -38,39 +38,56 @@
                 <label for="roleFilter">Filtrer par rôle :</label>
                 <select id="roleFilter" class="form-control">
                     <option value="">Tous</option>
-                    <!-- Les options seront remplies dynamiquement -->
                 </select>
             </div>
             <div class="col">
                 <label for="objectiveFilter">Filtrer par objectif :</label>
                 <select id="objectiveFilter" class="form-control">
                     <option value="">Tous</option>
-                    <!-- Les options seront remplies dynamiquement -->
                 </select>
             </div>
             <div class="col">
                 <label for="cityFilter">Filtrer par ville :</label>
                 <select id="cityFilter" class="form-control">
                     <option value="">Toutes</option>
-                    <!-- Les options seront remplies dynamiquement -->
                 </select>
             </div>
         </div>
 
         <div id="loading-message" class="alert alert-info text-center">Chargement des données, veuillez patienter...</div>
         <div id="error-message" class="alert alert-danger text-center" style="display: none;">Erreur lors du chargement des données. Veuillez réessayer plus tard.</div>
+        
+        <!-- Conteneur pour les événements -->
         <div id="data-cards" style="display: none;">
             <!-- Les cartes seront insérées ici -->
         </div>
 
         <!-- Conteneur pour la carte -->
-        <div id="map" style="height: 400px; margin-top: 20px;"></div>
+        <div id="map" style="height: 400px; margin-top: 20px; display: none;"></div>
+
+        <!-- Conteneur pour les graphiques -->
+        <div id="charts-container" style="display: none;">
+            <div class="row">
+                <div class="col-md-6">
+                    <canvas id="roleChart"></canvas>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="objectiveChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conteneur pour l'historique -->
+        <div id="history-container" style="display: none;">
+            <canvas id="historyChart"></canvas>
+        </div>
     </div>
     
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="js/script.js"></script> <!-- Lien vers le fichier script.js -->
-    <script src="js/tabs.js"></script> <!-- Lien vers le fichier script.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/tabs.js"></script>
 </body>
 </html>

@@ -1,28 +1,38 @@
 // Initialiser l'onglet actif par défaut
-$(".nav-link").removeClass("active"); // Supprimer la classe active de tous les onglets
-$(".nav-link").first().addClass("active"); // Ajouter active à l'onglet Événement (le premier)
+$(".nav-link").removeClass("active");
+$(".nav-link").first().addClass("active");
 
 // Afficher uniquement la section des cartes lors du chargement
-$("#data-cards").show(); // Afficher la section des cartes
-// Pas besoin de cacher la carte ici, car elle est déjà masquée par CSS
+$("#data-cards").show();
 
 // Gestion des clics sur les onglets
 $(".nav-link").on("click", function() {
     const tabId = $(this).text().trim();
     
     // Masquer tous les contenus
-    $("#data-cards, #map").hide(); // Supprimez loading-message et error-message si non nécessaire
+    $("#data-cards, #map, #charts-container, #history-container").hide();
 
     // Afficher le bon contenu en fonction de l'onglet sélectionné
-    if (tabId === "Événement") {
-        $("#data-cards").show(); // Afficher les données
-    } else if (tabId === "Carte interactive") {
-        $("#map").show(); // Afficher la carte
-    } else {
-        alert(tabId); // Ou vous pouvez afficher un autre contenu si nécessaire
+    switch(tabId) {
+        case "Événement":
+            $("#data-cards").show();
+            break;
+        case "Carte interactive":
+            $("#map").show();
+            break;
+        case "Graphiques":
+            $("#charts-container").show();
+            updateCharts(); // Fonction définie dans script.js
+            break;
+        case "Historique":
+            $("#history-container").show();
+            updateHistoryChart(); // Fonction définie dans script.js
+            break;
+        default:
+            alert(tabId);
     }
 
     // Mettre à jour la classe active sur les onglets
-    $(".nav-link").removeClass("active"); // Supprimer la classe active de tous les onglets
-    $(this).addClass("active"); // Ajouter active à l'onglet cliqué
+    $(".nav-link").removeClass("active");
+    $(this).addClass("active");
 });

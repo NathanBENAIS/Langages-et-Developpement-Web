@@ -3,6 +3,13 @@ URL : https://nathanbenais.github.io/Langages-et-Developpement-Web/data.html
 
 Concepteur du projet : Sofiane SEHAKI, Nathan BENAIS
 
+### ------ Formulaire
+Veuillez trouver ci-dessous le lien vers le formulaire :
+
+https://docs.google.com/forms/d/e/1FAIpQLSfe5JXMo7y5x3Lesemfr34n2x0sLUwDZaJiAp88mpDWS8DqFg/viewform?vc=0&c=0&w=1&flr=0
+
+Veuillez trouver ci-dessous le QRcode vers le formulaire :
+
 <img width="242" alt="image" src="https://github.com/user-attachments/assets/a52b3647-9bbc-48e2-b7c4-aa48db886e89">
 
 
@@ -25,12 +32,11 @@ désengorger le trafic, et améliorer la qualité de l'air dans les zones urbain
 
 ### ------ Besoins des acteurs
 ------ **Collectivités locales et régionales**  
------- Financement pour infrastructures (pistes cyclables, bornes de recharge)  
+------ Infrastructures (pistes cyclables, bornes de recharge)  
 ------ Réglementation incitative pour promouvoir la mobilité verte  
 ------ Soutien technique et expertise en planification urbaine  
 
 ------ **Entreprises de transport public et privé**  
------- Subventions pour la conversion des flottes vers des véhicules à faible émission  
 ------ Accès aux données pour améliorer la gestion des trajets et des flux de passagers  
 ------ Partenariats avec des développeurs technologiques pour la gestion intelligente des transports  
 
@@ -63,3 +69,8 @@ désengorger le trafic, et améliorer la qualité de l'air dans les zones urbain
 ------ Accès aux infrastructures pour installer des bornes de recharge électrique  
 ------ Partenariats pour promouvoir les énergies renouvelables dans la mobilité  
 ------ Prévision et optimisation des besoins en énergie pour les véhicules électriques  
+
+------ **Diagramme de flux de votre projet**  
+
+<img width="565" alt="flux" src="https://github.com/user-attachments/assets/e67f1125-96e8-46be-b1bf-bed16e13b72e">
+

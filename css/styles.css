@@ -13,6 +13,6 @@ body {
 }
 
 #map {
-    height: 400px; /* Hauteur de la carte */
-    margin-top: 20px; /* Marge au-dessus de la carte */
+    width: 100%; /* S'assurer que la carte prend toute la largeur */
+    height: 400px; /* Hauteur définie pour la carte */
 }
