@@ -1,3 +1,4 @@
+```mermaid.js
 sequenceDiagram
     participant Utilisateur
     participant Application
@@ -21,3 +22,4 @@ sequenceDiagram
     Utilisateur->>Application: Consulter les Graphiques
     Utilisateur->>Application: Voir l'Historique
     Utilisateur->>Application: Ajouter un Événement
+```
