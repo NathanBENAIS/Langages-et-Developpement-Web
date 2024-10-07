@@ -63,3 +63,9 @@ désengorger le trafic, et améliorer la qualité de l'air dans les zones urbain
 ------ Accès aux infrastructures pour installer des bornes de recharge électrique  
 ------ Partenariats pour promouvoir les énergies renouvelables dans la mobilité  
 ------ Prévision et optimisation des besoins en énergie pour les véhicules électriques  
+
+------ **Diagramme de flux de votre projet**  
+<img width="601" alt="image" src="https://github.com/user-attachments/assets/d9740282-0f66-4718-ad4b-d14d10f22c34">
+
+
+
