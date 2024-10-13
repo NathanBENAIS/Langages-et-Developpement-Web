@@ -115,8 +115,8 @@ function displayCards(data) {
                     ${contactAnswer.toLowerCase() === "oui" && coordonnees 
                     ? `<p><strong>Coordonnées:</strong> ${coordonnees}</p>` 
                     : ""}
-                    <p><strong>Nom et Prénom :</strong> ${row["prenom"]} ${row["Nom"]}</p>
-                    <p><strong>Téléphone :</strong> ${row["Téléphone"]}</p>
+                    <p><strong>Nom et Prénom :</strong> ${row["Prénom"]} ${row["Nom"]}</p>
+                    <p><strong>Email :</strong> ${row["Email"]}</p>
                     <p><strong>Adresse :</strong> ${row["Adresse\n"]}</p>
                     <button class="btn btn-secondary toggle-details">Lire moins</button>
                 </div>
