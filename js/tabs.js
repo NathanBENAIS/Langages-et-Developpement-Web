@@ -6,11 +6,12 @@ $(".nav-link").first().addClass("active");
 $("#data-cards").show();
 
 // Gestion des clics sur les onglets
+
 $(".nav-link").on("click", function() {
     const tabId = $(this).text().trim();
     
     // Masquer tous les contenus
-    $("#data-cards, #map, #charts-container, #history-container").hide();
+    $("#data-cards, #map, #charts-container, #history-container, #add-event-container").hide();
 
     // Afficher le bon contenu en fonction de l'onglet sélectionné
     switch(tabId) {
@@ -27,6 +28,9 @@ $(".nav-link").on("click", function() {
         case "Historique":
             $("#history-container").show();
             updateHistoryChart(); // Fonction définie dans script.js
+            break;
+        case "Ajout un Événement":
+            $("#add-event-container").show();
             break;
         default:
             alert(tabId);

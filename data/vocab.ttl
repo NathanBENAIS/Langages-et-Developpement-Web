@@ -1,0 +1,94 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix vs: <http://www.w3.org/2003/06/sw-vocab-status/ns#> .
+@prefix o: <http://omeka.org/s/vocabs/o#> .
+@prefix teach: <http://linkedscience.org/teach/ns#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix fup8: <https://jardindesconnaissances.univ-paris8.fr/onto/fup8#> .
+
+<https://jardindesconnaissances.univ-paris8.fr/onto/fup8> a owl:Ontology ;
+    dcterms:title "Formation Université Paris 8" .
+
+fup8:MobiliteDurable a rdfs:Class ;
+    rdfs:label "Mobilité Durable" ;
+    rdfs:comment "Classe représentant les informations sur les projets de mobilité durable." ;
+    rdfs:subClassOf o:Resource ;
+    vs:term_status "experimental" .
+
+fup8:Horodateur a rdf:Property ;
+    rdfs:label "Horodateur" ;
+    rdfs:domain fup8:MobiliteDurable ;
+    rdfs:range xsd:dateTime .
+
+fup8:Objectifs a rdf:Property ;
+    rdfs:label "Objectifs" ;
+    rdfs:domain fup8:MobiliteDurable ;
+    rdfs:range xsd:string .
+
+fup8:Besoins a rdf:Property ;
+    rdfs:label "Besoins" ;
+    rdfs:domain fup8:MobiliteDurable ;
+    rdfs:range xsd:string .
+
+fup8:NomOrganisation a rdf:Property ; 
+    rdfs:label "Nom de l'organisation / entité" ;
+    rdfs:domain fup8:MobiliteDurable ;
+    rdfs:range xsd:string .
+
+fup8:Collaboration a rdf:Property ;
+    rdfs:label "Collaboration" ;
+    rdfs:domain fup8:MobiliteDurable ;
+    rdfs:range xsd:boolean .
+
+fup8:Obstacles a rdf:Property ;
+    rdfs:label "Obstacles" ;
+    rdfs:domain fup8:MobiliteDurable ;
+    rdfs:range xsd:string .
+
+fup8:Priorites a rdf:Property ;
+    rdfs:label "Priorités" ;
+    rdfs:domain fup8:MobiliteDurable ;
+    rdfs:range xsd:string .
+
+fup8:SolutionsInnovantes a rdf:Property ;
+    rdfs:label "Solutions Innovantes" ;
+    rdfs:domain fup8:MobiliteDurable ;
+    rdfs:range xsd:boolean .
+
+fup8:InnovationsFutures a rdf:Property ;
+    rdfs:label "Innovations Futures" ;
+    rdfs:domain fup8:MobiliteDurable ;
+    rdfs:range xsd:string .
+
+fup8:Contact a rdf:Property ;
+    rdfs:label "Contact" ;
+    rdfs:domain fup8:MobiliteDurable ;
+    rdfs:range xsd:string .
+
+fup8:Coordonnees a rdf:Property ;
+    rdfs:label "Coordonnées" ;
+    rdfs:domain fup8:MobiliteDurable ;
+    rdfs:range xsd:string .
+
+fup8:Nom a rdf:Property ;
+    rdfs:label "Nom" ;
+    rdfs:domain fup8:MobiliteDurable ;
+    rdfs:range xsd:string .
+
+fup8:Prenom a rdf:Property ;
+    rdfs:label "Prénom" ;
+    rdfs:domain fup8:MobiliteDurable ;
+    rdfs:range xsd:string .
+
+fup8:Email a rdf:Property ;
+    rdfs:label "Email" ;
+    rdfs:domain fup8:MobiliteDurable ;
+    rdfs:range xsd:string .
+
+fup8:Adresse a rdf:Property ;
+    rdfs:label "Adresse" ;
+    rdfs:domain fup8:MobiliteDurable ;
+    rdfs:range xsd:string .
