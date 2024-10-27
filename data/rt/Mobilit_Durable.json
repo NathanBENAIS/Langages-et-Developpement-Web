@@ -1,0 +1,203 @@
+{
+    "o:label": "Mobilit\u00e9 Durable",
+    "o:resource_template_property": [
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/nathanbenais.github.io\/Langages-et-Developpement-Web\/data.html#",
+            "vocabulary_label": "Mobilite Durable",
+            "local_name": "NomOrganisation",
+            "label": "Nom de l'organisation \/ entit\u00e9"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/nathanbenais.github.io\/Langages-et-Developpement-Web\/data.html#",
+            "vocabulary_label": "Mobilite Durable",
+            "local_name": "Role",
+            "label": "R\u00f4le"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/nathanbenais.github.io\/Langages-et-Developpement-Web\/data.html#",
+            "vocabulary_label": "Mobilite Durable",
+            "local_name": "Horodateur",
+            "label": "Horodateur"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/nathanbenais.github.io\/Langages-et-Developpement-Web\/data.html#",
+            "vocabulary_label": "Mobilite Durable",
+            "local_name": "Besoins",
+            "label": "Besoins"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/nathanbenais.github.io\/Langages-et-Developpement-Web\/data.html#",
+            "vocabulary_label": "Mobilite Durable",
+            "local_name": "Objectifs",
+            "label": "Objectifs"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/nathanbenais.github.io\/Langages-et-Developpement-Web\/data.html#",
+            "vocabulary_label": "Mobilite Durable",
+            "local_name": "Collaboration",
+            "label": "Collaboration"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/nathanbenais.github.io\/Langages-et-Developpement-Web\/data.html#",
+            "vocabulary_label": "Mobilite Durable",
+            "local_name": "Obstacles",
+            "label": "Obstacles"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/nathanbenais.github.io\/Langages-et-Developpement-Web\/data.html#",
+            "vocabulary_label": "Mobilite Durable",
+            "local_name": "Priorites",
+            "label": "Priorit\u00e9s"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/nathanbenais.github.io\/Langages-et-Developpement-Web\/data.html#",
+            "vocabulary_label": "Mobilite Durable",
+            "local_name": "SolutionsInnovantes",
+            "label": "Solutions Innovantes"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/nathanbenais.github.io\/Langages-et-Developpement-Web\/data.html#",
+            "vocabulary_label": "Mobilite Durable",
+            "local_name": "InnovationsFutures",
+            "label": "Innovations Futures"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/nathanbenais.github.io\/Langages-et-Developpement-Web\/data.html#",
+            "vocabulary_label": "Mobilite Durable",
+            "local_name": "Coordonnees",
+            "label": "Coordonn\u00e9es"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/nathanbenais.github.io\/Langages-et-Developpement-Web\/data.html#",
+            "vocabulary_label": "Mobilite Durable",
+            "local_name": "Contact",
+            "label": "Contact"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/nathanbenais.github.io\/Langages-et-Developpement-Web\/data.html#",
+            "vocabulary_label": "Mobilite Durable",
+            "local_name": "Email",
+            "label": "Email"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/nathanbenais.github.io\/Langages-et-Developpement-Web\/data.html#",
+            "vocabulary_label": "Mobilite Durable",
+            "local_name": "Prenom",
+            "label": "Pr\u00e9nom"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/nathanbenais.github.io\/Langages-et-Developpement-Web\/data.html#",
+            "vocabulary_label": "Mobilite Durable",
+            "local_name": "Nom",
+            "label": "Nom"
+        },
+        {
+            "o:alternate_label": null,
+            "o:alternate_comment": null,
+            "o:is_required": false,
+            "o:is_private": false,
+            "o:default_lang": null,
+            "data_types": [],
+            "vocabulary_namespace_uri": "https:\/\/nathanbenais.github.io\/Langages-et-Developpement-Web\/data.html#",
+            "vocabulary_label": "Mobilite Durable",
+            "local_name": "Adresse",
+            "label": "Adresse"
+        }
+    ],
+    "o:resource_class": {
+        "vocabulary_namespace_uri": "https:\/\/nathanbenais.github.io\/Langages-et-Developpement-Web\/data.html#",
+        "vocabulary_label": "Mobilite Durable",
+        "local_name": "MobiliteDurable",
+        "label": "Mobilit\u00e9 Durable"
+    }
+}
