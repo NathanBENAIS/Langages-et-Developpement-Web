@@ -7,10 +7,11 @@
 @prefix teach: <http://linkedscience.org/teach/ns#> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix schema: <http://schema.org/> .
-@prefix fup8: <https://jardindesconnaissances.univ-paris8.fr/onto/fup8#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .  # Ajout du préfixe xsd
+@prefix fup8: <https://nathanbenais.github.io/Langages-et-Developpement-Web/data.html#> .
 
-<https://jardindesconnaissances.univ-paris8.fr/onto/fup8> a owl:Ontology ;
-    dcterms:title "Formation Université Paris 8" .
+<https://nathanbenais.github.io/Langages-et-Developpement-Web/data.html> a owl:Ontology ;
+    dcterms:title "Réponses Mobilité Durable" .
 
 fup8:MobiliteDurable a rdfs:Class ;
     rdfs:label "Mobilité Durable" ;
@@ -25,6 +26,11 @@ fup8:Horodateur a rdf:Property ;
 
 fup8:Objectifs a rdf:Property ;
     rdfs:label "Objectifs" ;
+    rdfs:domain fup8:MobiliteDurable ;
+    rdfs:range xsd:string .
+
+fup8:Role a rdf:Property ;
+    rdfs:label "Rôle" ;
     rdfs:domain fup8:MobiliteDurable ;
     rdfs:range xsd:string .
 
