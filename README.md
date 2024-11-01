@@ -6,11 +6,11 @@ Concepteur du projet : Sofiane SEHAKI, Nathan BENAIS
 ### ------ Formulaire
 Veuillez trouver ci-dessous le lien vers le formulaire :
 
-https://docs.google.com/forms/d/e/1FAIpQLSfe5JXMo7y5x3Lesemfr34n2x0sLUwDZaJiAp88mpDWS8DqFg/viewform?vc=0&c=0&w=1&flr=0
+[https://docs.google.com/forms/d/e/1FAIpQLSfe5JXMo7y5x3Lesemfr34n2x0sLUwDZaJiAp88mpDWS8DqFg/viewform?vc=0&c=0&w=1&flr=0](https://docs.google.com/forms/d/e/1FAIpQLSewcUuz6PK15nuG7hfU-eidnHD5uD2AkENr4GBdDbyoEiVbzQ/formResponse)
 
 Veuillez trouver ci-dessous le QRcode vers le formulaire :
 
-<img width="242" alt="image" src="https://github.com/user-attachments/assets/a52b3647-9bbc-48e2-b7c4-aa48db886e89">
+![qr-code-formulaire](https://github.com/user-attachments/assets/8c2f2259-772c-4796-9fdd-47b4da9723e5)
 
 
 ### ------ Descriptif - Mobilité durable
