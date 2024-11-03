@@ -1,28 +1,29 @@
-// Initialiser l'onglet actif par défaut
-$(".nav-link").removeClass("active"); // Supprimer la classe active de tous les onglets
-$(".nav-link").first().addClass("active"); // Ajouter active à l'onglet Événement (le premier)
+// JavaScript pour gérer les changements de tabs
+document.addEventListener("DOMContentLoaded", () => {
+    const tabButtons = document.querySelectorAll("[data-tabs-target]");
+    const tabContents = document.querySelectorAll("[role='tabpanel']");
 
-// Afficher uniquement la section des cartes lors du chargement
-$("#data-cards").show(); // Afficher la section des cartes
-// Pas besoin de cacher la carte ici, car elle est déjà masquée par CSS
+    tabButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            // Cache tous les contenus d'onglets
+            tabContents.forEach(content => {
+                content.classList.add("hidden");
+            });
 
-// Gestion des clics sur les onglets
-$(".nav-link").on("click", function() {
-    const tabId = $(this).text().trim();
-    
-    // Masquer tous les contenus
-    $("#data-cards, #map").hide(); // Supprimez loading-message et error-message si non nécessaire
+            // Supprime la classe active de tous les boutons d'onglets
+            tabButtons.forEach(btn => {
+                btn.classList.remove("border-blue-500", "text-blue-500");
+            });
 
-    // Afficher le bon contenu en fonction de l'onglet sélectionné
-    if (tabId === "Événement") {
-        $("#data-cards").show(); // Afficher les données
-    } else if (tabId === "Carte interactive") {
-        $("#map").show(); // Afficher la carte
-    } else {
-        alert(tabId); // Ou vous pouvez afficher un autre contenu si nécessaire
-    }
+            // Affiche le contenu correspondant à l'onglet cliqué
+            const tabId = button.getAttribute("data-tabs-target");
+            document.querySelector(tabId).classList.remove("hidden");
 
-    // Mettre à jour la classe active sur les onglets
-    $(".nav-link").removeClass("active"); // Supprimer la classe active de tous les onglets
-    $(this).addClass("active"); // Ajouter active à l'onglet cliqué
+            // Ajoute une classe pour styliser l'onglet actif
+            button.classList.add("border-blue-500", "text-blue-500");
+        });
+    });
+
+    // Active le premier onglet par défaut
+    tabButtons[0].click();
 });
