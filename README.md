@@ -64,5 +64,4 @@ Gérer les intégrations API (par exemple, HERE Maps)
 Assurer le support technique aux utilisateurs
 Analyser les tendances d’utilisation de la plateforme
 
-<img width="565" alt="flux" src="https://github.com/user-attachments/assets/e67f1125-96e8-46be-b1bf-bed16e13b72e">
 
