@@ -7,19 +7,17 @@
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="p-6 bg-gray-100">
-    <div class="max-w-6xl mx-auto">
-        <h1 class="text-3xl font-bold mb-6 text-gray-800">Diagramme de classes Resource Templates</h1>
-        
-        <!-- Conteneur du spinner -->
-        <div id="loading" class="flex flex-col items-center justify-center py-12">
-            <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-            <p class="text-gray-600">Chargement du diagramme en cours...</p>
-        </div>
-
-        <!-- Conteneur du diagramme -->
-        <div id="mermaid-diagram"></div>
+<body class="p-4">
+    <h1 class="text-2xl font-bold mb-4">Diagramme de classes Resource Templates</h1>
+    
+    <!-- Spinner -->
+    <div id="loading" class="flex flex-col items-center justify-center py-12">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+        <p class="text-gray-600">Chargement du diagramme en cours...</p>
     </div>
+
+    <!-- Container du diagramme -->
+    <div id="mermaid-diagram"></div>
 
     <script>
         mermaid.initialize({
@@ -32,7 +30,6 @@
             }
         });
 
-        // Fonctions existantes...
         async function getPropertyDetails(propertyUrl) {
             try {
                 const response = await fetch(propertyUrl);
@@ -44,18 +41,6 @@
             }
         }
 
-        async function getResourceClassDetails(classUrl) {
-            if (!classUrl) return null;
-            try {
-                const response = await fetch(classUrl);
-                const resourceClass = await response.json();
-                return resourceClass;
-            } catch (error) {
-                console.error(`Erreur lors de la récupération de la classe ${classUrl}:`, error);
-                return null;
-            }
-        }
-
         async function getTemplateProperties(template) {
             const properties = [];
             for (const prop of template["o:resource_template_property"]) {
@@ -63,48 +48,6 @@
                 properties.push(propertyName);
             }
             return properties;
-        }
-
-        function findRelations(templates) {
-            const relations = new Map();
-            const classMapping = new Map();
-
-            templates.forEach(template => {
-                if (template["o:resource_class"]) {
-                    const classId = template["o:resource_class"]["@id"];
-                    if (!classMapping.has(classId)) {
-                        classMapping.set(classId, []);
-                    }
-                    classMapping.get(classId).push(template["o:label"]);
-                }
-            });
-
-            templates.forEach(template => {
-                template["o:resource_template_property"].forEach(prop => {
-                    const propId = prop["o:property"]["@id"];
-                    templates.forEach(otherTemplate => {
-                        if (otherTemplate["o:resource_class"] && 
-                            template["o:resource_template_property"].some(p => 
-                                p["o:property"]["@id"].includes(otherTemplate["o:resource_class"]["o:id"]))) {
-                            const sourceClass = template["o:label"].replace(/\s+/g, '').replace(/[éè]/g, 'e').replace(/[^a-zA-Z0-9-]/g, '');
-                            const targetClass = otherTemplate["o:label"].replace(/\s+/g, '').replace(/[éè]/g, 'e').replace(/[^a-zA-Z0-9-]/g, '');
-                            relations.set(`${sourceClass}-${targetClass}`, `    ${sourceClass} --> ${targetClass}\n`);
-                        }
-                    });
-                });
-            });
-
-            classMapping.forEach((templates, classId) => {
-                if (templates.length > 1) {
-                    const parentTemplate = templates[0].replace(/\s+/g, '').replace(/[éè]/g, 'e').replace(/[^a-zA-Z0-9-]/g, '');
-                    templates.slice(1).forEach(childTemplateName => {
-                        const childTemplate = childTemplateName.replace(/\s+/g, '').replace(/[éè]/g, 'e').replace(/[^a-zA-Z0-9-]/g, '');
-                        relations.set(`${parentTemplate}-${childTemplate}`, `    ${parentTemplate} <|-- ${childTemplate}\n`);
-                    });
-                }
-            });
-
-            return Array.from(relations.values()).join('');
         }
 
         async function generateMermaidClassDiagram(data) {
@@ -127,29 +70,27 @@
                 mermaidCode += '    }\n';
             }
 
-            mermaidCode += findRelations(data);
             return mermaidCode;
         }
 
         async function createDiagram(mermaidCode) {
             const diagramContainer = document.getElementById('mermaid-diagram');
-            const loadingElement = document.getElementById('loading');
+            const loadingSpinner = document.getElementById('loading');
             
             try {
                 diagramContainer.innerHTML = `<pre class="mermaid">${mermaidCode}</pre>`;
                 await mermaid.run();
-                // Cacher le spinner et afficher le diagramme
-                loadingElement.classList.add('hidden');
+                loadingSpinner.classList.add('hidden');
                 diagramContainer.classList.remove('hidden');
             } catch (error) {
                 console.error('Erreur lors de la génération du diagramme:', error);
                 diagramContainer.innerHTML = `
-                    <div class="text-red-500 p-4 rounded-lg bg-red-100">
-                        <p class="font-bold mb-2">Erreur lors de la génération du diagramme:</p>
+                    <div class="text-red-500 p-4 rounded bg-red-100">
+                        <p class="font-bold">Erreur lors de la génération du diagramme:</p>
                         <p>${error.message}</p>
                     </div>
                 `;
-                loadingElement.classList.add('hidden');
+                loadingSpinner.classList.add('hidden');
                 diagramContainer.classList.remove('hidden');
             }
         }
@@ -162,14 +103,15 @@
                 await createDiagram(mermaidCode);
             } catch (error) {
                 console.error('Erreur:', error);
-                const loadingElement = document.getElementById('loading');
-                loadingElement.innerHTML = `
-                    <div class="text-red-500 text-center">
-                        <svg class="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                        </svg>
-                        <p class="font-semibold">Erreur lors du chargement des données</p>
-                        <p class="text-sm mt-2">${error.message}</p>
+                const loadingSpinner = document.getElementById('loading');
+                const diagramContainer = document.getElementById('mermaid-diagram');
+                
+                loadingSpinner.classList.add('hidden');
+                diagramContainer.classList.remove('hidden');
+                diagramContainer.innerHTML = `
+                    <div class="text-red-500 p-4 rounded bg-red-100">
+                        <p class="font-bold">Erreur lors du chargement des données:</p>
+                        <p>${error.message}</p>
                     </div>
                 `;
             }
