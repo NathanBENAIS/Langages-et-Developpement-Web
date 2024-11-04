@@ -16,62 +16,52 @@ Veuillez trouver ci-dessous le QRcode vers le formulaire :
 
 ### ------ Descriptif - Mobilité durable
 
-Le développement de solutions de mobilité intelligente et durable vise à réduire l'empreinte carbone tout en améliorant 
-les déplacements des habitants. Cela inclut l’intégration de transports en commun écologiques, le développement de pistes cyclables,
- et la promotion de véhicules partagés ou électriques. Ces solutions sont conçues pour optimiser les flux de personnes, 
-désengorger le trafic, et améliorer la qualité de l'air dans les zones urbaines et rurales.
+MobilitéDurable est une application web conçue pour offrir aux utilisateurs la possibilité de comparer différents modes de transport pour leurs trajets quotidiens en fonction du temps de parcours et de leur impact environnemental, notamment les émissions de CO2. L’application propose une visualisation des données permettant aux utilisateurs de faire des choix de transport plus écologiques, en leur présentant clairement les différences entre la voiture, les transports en commun, le vélo et la marche.
 
 ### ------ Acteurs du projet
------- **Collectivités locales et régionales** (mairies, conseils régionaux)  
------- **Entreprises de transport public et privé**  
------- **Citoyens et usagers**  
------- **Startups et entreprises technologiques** (développeurs de plateformes de mobilité)  
------- **Associations et ONG environnementales**  
------- **Instituts de recherche et universités** (mobilité et climat)  
------- **Gouvernement central et autorités de régulation**  
------- **Fournisseurs d'énergie (électricité verte)**  
+Utilisateurs grand public
+
+Individus cherchant à optimiser leurs déplacements quotidiens
+Personnes sensibles aux enjeux environnementaux
+Voyageurs réguliers (domicile-travail)
+Entreprises et organisations
+
+Responsables RSE (Responsabilité Sociétale des Entreprises)
+Gestionnaires de flottes de véhicules
+Services RH dans le cadre de la gestion de la mobilité
+Administrateurs du système
+
+Gestionnaires de la plateforme
+Équipe de support technique
+Analystes de données
 
 ### ------ Besoins des acteurs
------- **Collectivités locales et régionales**  
------- Infrastructures (pistes cyclables, bornes de recharge)  
------- Réglementation incitative pour promouvoir la mobilité verte  
------- Soutien technique et expertise en planification urbaine  
+A. Utilisateurs grand public :
 
------- **Entreprises de transport public et privé**  
------- Accès aux données pour améliorer la gestion des trajets et des flux de passagers  
------- Partenariats avec des développeurs technologiques pour la gestion intelligente des transports  
+Accéder rapidement aux temps de trajet pour divers modes de transport
+Comparer l’empreinte carbone des options de transport disponibles
+Sauvegarder des trajets favoris et consulter l'historique de leurs déplacements
+Visualiser des données sous forme de graphiques comparatifs
+Disposer d’une interface intuitive et adaptée aux mobiles et aux ordinateurs de bureau
+Accéder à des informations actualisées en temps réel
+Recevoir des suggestions d'itinéraires alternatifs
 
------- **Citoyens et usagers**  
------- Accès à des transports fiables, abordables et écologiques  
------- Infrastructures sécurisées pour les mobilités douces (pistes cyclables, trottoirs adaptés)  
------- Information en temps réel sur la disponibilité des transports et véhicules partagés  
+B. Entreprises et organisations :
 
------- **Startups et entreprises technologiques**  
------- Soutien à l’innovation (financement, accès aux données publiques)  
------- Collaboration avec les acteurs publics pour tester et déployer des solutions  
------- Accès aux infrastructures de recharge électrique et de connectivité  
+Analyser les habitudes de déplacement des employés
+Générer des rapports sur l'impact environnemental
+Suivre et rendre compte des objectifs de réduction d’émissions
+Promouvoir les options de transport plus durables
+Intégrer les données de mobilité dans leurs rapports de bilan carbone
+Accéder à des statistiques agrégées sur la mobilité
 
------- **Associations et ONG environnementales**  
------- Collaboration avec les décideurs pour orienter les politiques de mobilité  
------- Implication dans la sensibilisation publique et les initiatives locales  
------- Données sur l’impact environnemental des solutions mises en œuvre  
+C. Administrateurs du système :
 
------- **Instituts de recherche et universités**  
------- Accès aux données pour étudier l’impact des solutions sur le climat et la santé  
------- Partenariats avec les villes pour tester des innovations en mobilité  
------- Financements pour la recherche en solutions de mobilité durable  
+Gérer les comptes utilisateurs et surveiller la sécurité des données
+Assurer la performance et la maintenance de la plateforme
+Maintenir à jour les facteurs d’émission de CO2
+Gérer les intégrations API (par exemple, HERE Maps)
+Assurer le support technique aux utilisateurs
+Analyser les tendances d’utilisation de la plateforme
 
------- **Gouvernement central et autorités de régulation**  
------- Coordination des politiques nationales et locales de mobilité durable  
------- Création d’incitations fiscales et réglementaires pour encourager les modes de transport durables  
------- Normes de sécurité et d’émission pour les véhicules  
-
------- **Fournisseurs d'énergie**  
------- Accès aux infrastructures pour installer des bornes de recharge électrique  
------- Partenariats pour promouvoir les énergies renouvelables dans la mobilité  
------- Prévision et optimisation des besoins en énergie pour les véhicules électriques  
-
------- **Diagramme de flux de votre projet**  
-
-<img width="565" alt="flux" src="https://github.com/user-attachments/assets/e67f1125-96e8-46be-b1bf-bed16e13b72e">
 
