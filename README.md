@@ -21,20 +21,19 @@ MobilitéDurable est une application web conçue pour offrir aux utilisateurs la
 ### ------ Acteurs du projet
 Utilisateurs grand public
 
------- Individus cherchant à optimiser leurs déplacements quotidiens
------- Personnes sensibles aux enjeux environnementaux
------- Voyageurs réguliers (domicile-travail)
-
+Individus cherchant à optimiser leurs déplacements quotidiens
+Personnes sensibles aux enjeux environnementaux
+Voyageurs réguliers (domicile-travail)
 Entreprises et organisations
------- Responsables RSE (Responsabilité Sociétale des Entreprises)
------- Gestionnaires de flottes de véhicules
------- Services RH dans le cadre de la gestion de la mobilité
 
+Responsables RSE (Responsabilité Sociétale des Entreprises)
+Gestionnaires de flottes de véhicules
+Services RH dans le cadre de la gestion de la mobilité
 Administrateurs du système
 
------- Gestionnaires de la plateforme
------- Équipe de support technique
------- Analystes de données
+Gestionnaires de la plateforme
+Équipe de support technique
+Analystes de données
 
 ### ------ Besoins des acteurs
 A. Utilisateurs grand public :
