@@ -1,0 +1,43 @@
+classDiagram
+    class Trajet {
+        +String nomTrajet
+        +String pointDepart
+        +String pointArrivee
+    }
+    
+    class ModeTransport {
+        +int duree
+        +float distance
+        +float emissionsCO2
+    }
+    
+    class Utilisateur {
+        +String prenom
+        +String nom
+        +String email
+    }
+    
+    class Voiture {
+        +String typeCarburant
+    }
+    
+    class TransportEnCommun {
+        +String typeTransport
+    }
+    
+    class Velo
+    
+    class Marche
+    
+    ModeTransport <|-- Voiture
+    ModeTransport <|-- TransportEnCommun
+    ModeTransport <|-- Velo
+    ModeTransport <|-- Marche
+    
+    Utilisateur "1" --> "0..*" Trajet : possède
+    Trajet "1" --> "1" Voiture : contient
+    Trajet "1" --> "1" TransportEnCommun : contient
+    Trajet "1" --> "1" Velo : contient
+    Trajet "1" --> "1" Marche : contient
+    
+    note for Voiture "typeCarburant: \nEssence/Diesel/Electrique/Hybride"

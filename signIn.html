@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <!-- Loading Spinner -->
+    <div id="loading-container"></div>
+
+    <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow">
+        <div>
+            <h2 class="text-center text-3xl font-extrabold text-gray-900">
+                Créer un compte
+            </h2>
+        </div>
+
+        <!-- Alert Box -->
+        <div id="alertBox" class="hidden rounded-md p-4 mb-4"></div>
+
+        <form id="signupForm" class="mt-8 space-y-6">
+            <div class="rounded-md shadow-sm -space-y-px">
+                <div class="mb-4">
+                    <label for="firstname" class="block text-sm font-medium text-gray-700">Prénom</label>
+                    <input id="firstname" name="firstname" type="text" required 
+                        class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
+                </div>
+                <div class="mb-4">
+                    <label for="lastname" class="block text-sm font-medium text-gray-700">Nom</label>
+                    <input id="lastname" name="lastname" type="text" required 
+                        class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
+                </div>
+                <div class="mb-4">
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input id="email" name="email" type="email" required 
+                        class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
+                </div>
+            </div>
+
+            <div>
+                <button type="submit" 
+                    class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    S'inscrire
+                </button>
+            </div>
+        </form>
+
+        <div class="text-center">
+            <p class="text-sm text-gray-600">
+                Déjà un compte? 
+                <a href="login.html" class="font-medium text-indigo-600 hover:text-indigo-500">
+                    Se connecter
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth } from './module/auth.js';
+        import { loader } from './module/loader.js';
+        
+        const loadingSpinner = new loader();
+        
+        // Initialiser l'auth avec les credentials admin
+        const adminAuth = new auth({
+            mail: "nathan.benais@gmail.com",
+            apiOmk: "http://localhost/omeka-s/api/",
+            ident: "K0DTO51WJeHaNmmCuwMXwero9CLsxiAw",
+            key: "9JDmKbxxRslkLzhJb4jC1LkWk3A7czr9",
+            vocabs: ["dcterms", "bc"]
+        });
+
+        function showAlert(message, type = 'error') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.className = `rounded-md p-4 mb-4 ${
+                type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+            }`;
+            alertBox.textContent = message;
+            alertBox.style.display = 'block';
+        }
+
+        // Attendre que l'initialisation soit terminée
+        setTimeout(() => {
+            // Attacher l'event listener au formulaire
+            document.getElementById('signupForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                loadingSpinner.show();
+
+                try {
+                    const firstname = document.getElementById('firstname').value;
+                    const lastname = document.getElementById('lastname').value;
+                    const email = document.getElementById('email').value;
+
+                    // Afficher les templates disponibles pour le debug
+                    console.log("Templates disponibles:", adminAuth.omk.rts);
+                    
+                    // Créer les données utilisateur
+                    const userData = {
+                        'labels': [
+                            {p: 'Prénom', v: firstname},
+                            {p: 'Nom', v: lastname},
+                            {p: 'Email', v: email},
+                            {p: 'Possède trajet', v: 'Non'}
+                        ],
+                        'o:resource_template': 'Mobilité Durable - Utilisateur'
+                    };
+
+                    console.log('Données à envoyer:', userData);
+
+                    // Créer l'item
+                    adminAuth.omk.createItem(userData, (result) => {
+                        loadingSpinner.hide(true);
+                        console.log('Résultat de la création:', result);
+                        
+                        if (result && result['o:id']) {
+                            // Stockage des informations utilisateur
+                            localStorage.setItem('user', JSON.stringify({
+                                id: result['o:id'],
+                                prenom: firstname,
+                                nom: lastname,
+                                email: email
+                            }));
+
+                            showAlert('Compte créé avec succès! Redirection...', 'success');
+                            
+                            setTimeout(() => {
+                                window.location.href = 'login.html';
+                            }, 2000);
+                        } else {
+                            throw new Error('Réponse invalide du serveur');
+                        }
+                    });
+
+                } catch (error) {
+                    console.error('Erreur détaillée:', error);
+                    loadingSpinner.hide(true);
+                    showAlert('Erreur lors de la création du compte: ' + error.message);
+                }
+            });
+        }, 1000);
+    </script>
+</body>
+</html>

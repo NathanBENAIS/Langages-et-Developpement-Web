@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagramme de classes Resource Templates</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-4">
+    <h1 class="text-2xl font-bold mb-4">Diagramme de classes Resource Templates</h1>
+    
+    <!-- Spinner -->
+    <div id="loading" class="flex flex-col items-center justify-center py-12">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+        <p class="text-gray-600">Chargement du diagramme en cours...</p>
+    </div>
+
+    <!-- Container du diagramme -->
+    <div id="mermaid-diagram"></div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true
+            }
+        });
+
+        async function getPropertyDetails(propertyUrl) {
+            try {
+                const response = await fetch(propertyUrl);
+                const property = await response.json();
+                return property["o:label"] || property["o:id"];
+            } catch (error) {
+                console.error(`Erreur lors de la récupération de la propriété ${propertyUrl}:`, error);
+                return propertyUrl.split('/').pop();
+            }
+        }
+
+        async function getTemplateProperties(template) {
+            const properties = [];
+            for (const prop of template["o:resource_template_property"]) {
+                const propertyName = await getPropertyDetails(prop["o:property"]["@id"]);
+                properties.push(propertyName);
+            }
+            return properties;
+        }
+
+        async function generateMermaidClassDiagram(data) {
+            let mermaidCode = 'classDiagram\n';
+            
+            for (const template of data) {
+                const className = template["o:label"]
+                    .replace(/\s+/g, '')
+                    .replace(/[éè]/g, 'e')
+                    .replace(/[^a-zA-Z0-9-]/g, '');
+                
+                mermaidCode += `    class ${className} {\n`;
+                
+                const properties = await getTemplateProperties(template);
+                const uniqueProperties = [...new Set(properties)];
+                for (const prop of uniqueProperties) {
+                    mermaidCode += `        ${prop}\n`;
+                }
+                
+                mermaidCode += '    }\n';
+            }
+
+            // Relations d'héritage pour les types de transport
+            mermaidCode += '    MobiliteDurable-ModedeTransport <|-- MobiliteDurable-Voiture\n';
+            mermaidCode += '    MobiliteDurable-ModedeTransport <|-- MobiliteDurable-Velo\n';
+            mermaidCode += '    MobiliteDurable-ModedeTransport <|-- MobiliteDurable-Marche\n';
+            mermaidCode += '    MobiliteDurable-ModedeTransport <|-- MobiliteDurable-TransportenCommun\n';
+
+            // Relation de composition entre Trajet et les modes de transport
+            mermaidCode += '    MobiliteDurable-Trajet --> MobiliteDurable-Voiture : utilise\n';
+            mermaidCode += '    MobiliteDurable-Trajet --> MobiliteDurable-Velo : utilise\n';
+            mermaidCode += '    MobiliteDurable-Trajet --> MobiliteDurable-Marche : utilise\n';
+            mermaidCode += '    MobiliteDurable-Trajet --> MobiliteDurable-TransportenCommun : utilise\n';
+
+            // Relation entre Utilisateur et Trajet
+            mermaidCode += '    MobiliteDurable-Utilisateur --> MobiliteDurable-Trajet : possede\n';
+
+            return mermaidCode;
+        }
+
+        async function createDiagram(mermaidCode) {
+            const diagramContainer = document.getElementById('mermaid-diagram');
+            const loadingSpinner = document.getElementById('loading');
+            
+            try {
+                diagramContainer.innerHTML = `<pre class="mermaid">${mermaidCode}</pre>`;
+                await mermaid.run();
+                loadingSpinner.classList.add('hidden');
+                diagramContainer.classList.remove('hidden');
+            } catch (error) {
+                console.error('Erreur lors de la génération du diagramme:', error);
+                diagramContainer.innerHTML = `
+                    <div class="text-red-500 p-4 rounded bg-red-100">
+                        <p class="font-bold">Erreur lors de la génération du diagramme:</p>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+                loadingSpinner.classList.add('hidden');
+                diagramContainer.classList.remove('hidden');
+            }
+        }
+
+        async function init() {
+            try {
+                const response = await fetch('http://localhost/omeka-s/api/resource_templates');
+                const data = await response.json();
+                const mermaidCode = await generateMermaidClassDiagram(data);
+                await createDiagram(mermaidCode);
+            } catch (error) {
+                console.error('Erreur:', error);
+                const loadingSpinner = document.getElementById('loading');
+                const diagramContainer = document.getElementById('mermaid-diagram');
+                
+                loadingSpinner.classList.add('hidden');
+                diagramContainer.classList.remove('hidden');
+                diagramContainer.innerHTML = `
+                    <div class="text-red-500 p-4 rounded bg-red-100">
+                        <p class="font-bold">Erreur lors du chargement des données:</p>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+    <style>
+        #loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 5px solid #4338ca;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+
+
+    <!-- Loading Indicator -->
+    <div id="loading-container">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="alertBox" class="hidden fixed top-4 right-4 z-50"></div>
+
+    <!-- Main Container -->
+    <div class="max-w-4xl mx-auto">
+        <!-- Weather Container -->
+        <div class="mx-auto bg-white rounded-lg shadow-lg p-6" id="weather-container">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-8">Météo et Impact sur vos Déplacements</h2>
+
+            <!-- Recherche ville -->
+            <div class="mb-6">
+                <div class="flex gap-4">
+                    <input type="text" id="cityInput" 
+                           placeholder="Entrez une ville" 
+                           class="flex-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
+                    <button onclick="getWeather()" 
+                            class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                        Rechercher
+                    </button>
+                </div>
+            </div>
+
+            <!-- Affichage météo actuelle -->
+            <div id="currentWeather" class="bg-gradient-to-br from-blue-500 to-[#99dde8] rounded-lg p-6 text-white hidden mb-6">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-2" id="cityName">--</h3>
+                        <p class="text-4xl font-bold mb-4" id="temperature">--°C</p>
+                        <p class="text-lg" id="description">--</p>
+                    </div>
+                    <img id="weatherIcon" src="" alt="Météo" class="w-20 h-20">
+                </div>
+                <div class="grid grid-cols-3 gap-4 mt-6 text-center">
+                    <div>
+                        <p class="text-sm opacity-75">Humidité</p>
+                        <p class="font-bold" id="humidity">--%</p>
+                    </div>
+                    <div>
+                        <p class="text-sm opacity-75">Vent</p>
+                        <p class="font-bold" id="wind">-- km/h</p>
+                    </div>
+                    <div>
+                        <p class="text-sm opacity-75">Ressenti</p>
+                        <p class="font-bold" id="feels">--°C</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommandations -->
+            <div id="recommendations" class="bg-gray-50 rounded-lg p-6 border border-gray-200 hidden mb-6">
+                <h3 class="text-xl font-semibold mb-4">Recommandations Transport</h3>
+                <div id="transportRecommendations" class="space-y-4">
+                    <!-- Les recommandations seront insérées ici -->
+                </div>
+            </div>
+
+            <!-- Prévisions -->
+            <div id="forecast" class="hidden">
+                <h3 class="text-xl font-semibold mb-4">Prévisions sur 5 jours</h3>
+                <div id="forecastContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+                    <!-- Les prévisions seront insérées ici -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="weather.js"></script>

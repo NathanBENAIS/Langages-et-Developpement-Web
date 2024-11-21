@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - MobilitéDurable</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        #loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 5px solid #4338ca;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-w-screen min-h-screen bg-gray-100 flex flex-col">
+    <div id="loading-container">
+        <div class="loader"></div>
+    </div>
+
+    <div id="alertBox" class="fixed top-4 right-4 hidden"></div>
+
+    <div class="flex-grow flex items-center justify-center px-5 py-5">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-8">
+            <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">Connexion</h2>
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Adresse email</label>
+                    <input type="email" id="email" name="email" required
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <button type="submit"
+                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Se connecter
+                </button>
+                <div class="text-center">
+                    <p class="text-sm text-gray-600">
+                        Pas encore de compte? 
+                        <a href="signIn.html" class="font-medium text-indigo-600 hover:text-indigo-500">
+                            S'inscrire
+                        </a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth } from './module/auth.js';
+        import { loader } from './module/loader.js';
+
+        const loadingSpinner = new loader();
+
+        const adminAuth = new auth({
+            mail: "nathan.benais@gmail.com",
+            apiOmk: "http://localhost/omeka-s/api/",
+            ident: "K0DTO51WJeHaNmmCuwMXwero9CLsxiAw",
+            key: "9JDmKbxxRslkLzhJb4jC1LkWk3A7czr9",
+            vocabs: ["dcterms", "bc"]
+        });
+
+        function showAlert(message, type = 'error') {
+            console.log("showAlert - Displaying alert:", message, "Type:", type);
+            const alertBox = document.getElementById('alertBox');
+            alertBox.className = `fixed top-4 right-4 p-4 rounded ${
+                type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+            }`;
+            alertBox.textContent = message;
+            alertBox.style.display = 'block';
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 3000);
+        }
+
+        function checkLoggedInUser() {
+            console.log("checkLoggedInUser - Checking if user is already logged in.");
+            try {
+                const userStr = localStorage.getItem('user');
+                console.log("checkLoggedInUser - User data from localStorage:", userStr);
+                if (userStr) {
+                    const user = JSON.parse(userStr);
+                    if (user && user.id && user.email) {
+                        console.log("checkLoggedInUser - User is logged in. Redirecting to index.html.");
+                        window.location.href = 'index.html';
+                    }
+                }
+            } catch (error) {
+                console.error("checkLoggedInUser - Error parsing user data:", error);
+                localStorage.removeItem('user');
+            }
+        }
+
+        setTimeout(() => {
+            checkLoggedInUser();
+
+            document.getElementById('loginForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                loadingSpinner.show();
+
+                try {
+                    const email = document.getElementById('email').value;
+                    console.log("Form submit - Email entered:", email);
+
+                    const query = `resource_template_id=${adminAuth.omk.getRtId('Mobilité Durable - Utilisateur')}&property[0][joiner]=and&property[0][property]=${adminAuth.omk.getPropId('bc:email')}&property[0][type]=eq&property[0][text]=${encodeURIComponent(email)}`;
+
+                    console.log("Form submit - Search query:", query);
+
+                    const response = await adminAuth.omk.search(query);
+                    console.log("Form submit - Search response:", response);
+                    loadingSpinner.hide(true);
+
+                    if (response && response.length > 0) {
+                        const user = response[0];
+                        console.log("Form submit - User found:", user);
+                        if (user && user['o:id']) {
+                            const getPropertyValue = (prop) => user[prop] && user[prop][0] ? user[prop][0]['@value'] : '';
+
+                            const userData = {
+                                id: user['o:id'],
+                                email: getPropertyValue('bc:email'),
+                                prenom: getPropertyValue('bc:prenom'),
+                                nom: getPropertyValue('bc:nom')
+                            };
+                            console.log("Form submit - User data constructed:", userData);
+
+                            if (userData.id && userData.email && userData.prenom && userData.nom) {
+                                localStorage.setItem('user', JSON.stringify(userData));
+                                showAlert('Connexion réussie !', 'success');
+
+                                setTimeout(() => {
+                                    console.log("Form submit - Redirecting to index.html");
+                                    window.location.href = 'index.html';
+                                }, 1000);
+                            } else {
+                                showAlert('Données utilisateur incomplètes');
+                            }
+                        } else {
+                            showAlert('Format de données utilisateur inattendu');
+                        }
+                    } else {
+                        showAlert('Aucun utilisateur trouvé avec cet email');
+                    }
+                } catch (error) {
+                    console.error("Form submit - Error during login process:", error);
+                    loadingSpinner.hide(true);
+                    showAlert('Erreur lors de la connexion: ' + error.message);
+                }
+            });
+        }, 1000);
+
+        async function fetchAndProcessItems() {
+            const apiUrl = "http://localhost/omeka-s/api/items";
+            console.log("fetchAndProcessItems - Fetching items from API:", apiUrl);
+
+            try {
+                const response = await fetch(apiUrl);
+                console.log("fetchAndProcessItems - API response:", response);
+
+                if (!response.ok) {
+                    console.error("fetchAndProcessItems - Failed to fetch items:", response.status);
+                    return;
+                }
+
+                const items = await response.json();
+                console.log("fetchAndProcessItems - Items received:", items);
+
+                processItems(items);
+            } catch (error) {
+                console.error("fetchAndProcessItems - Error fetching items:", error);
+            }
+        }
+
+        fetchAndProcessItems();
+
+        function getPropId(data) {
+            console.log("getPropId - Data received:", data);
+
+            if (data && data['o:id']) {
+                console.log("getPropId - Property ID:", data['o:id']);
+                return data['o:id'];
+            } else {
+                console.error("getPropId - Property ID not found in data:", data);
+                return null;
+            }
+        }
+
+        function processItems(items) {
+            console.log("processItems - Processing items:", items);
+
+            if (!Array.isArray(items)) {
+                console.error("processItems - Items is not an array:", items);
+                return;
+            }
+
+            items.forEach((item, index) => {
+                console.log(`processItems - Processing item at index ${index}:`, item);
+                const propId = getPropId(item);
+                if (propId !== null) {
+                    console.log(`processItems - Found property ID for item at index ${index}:`, propId);
+                } else {
+                    console.warn(`processItems - Property ID is null for item at index ${index}`);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

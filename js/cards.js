@@ -1,42 +1,145 @@
-function displayCards(data) {
-    $("#data-cards").empty();
+let allData = [];
 
-    data.forEach(function(row) {
-        var contactAnswer = row["Souhaitez-vous être contacté pour participer à des projets collaboratifs en mobilité durable ?\n(Oui/Non)  "].trim();
-        var coordonnees = row["Si oui, veuillez indiquer vos coordonnées :"].trim();
-        
-        var card = `
-            <div class="card mb-3" data-role="${row["Quel est votre rôle dans le projet de mobilité durable ?"]}" data-objective="${row["Quels sont les principaux objectifs que vous visez en matière de mobilité durable ?"]}" data-city="${row["Adresse\n"].split(',')[1]?.trim() || ''}">
-                <div class="card-header">
-                    <h5 class="card-title"><strong>Nom de l'organisation / entité : </strong>${row["Nom de l'organisation / entité "]}</h5>
-                    <p class="card-text"><strong>Rôle dans le projet de mobilité durable : </strong>${row["Quel est votre rôle dans le projet de mobilité durable ?"]}</p>
-                    <button class="btn btn-primary toggle-details">Lire plus</button>
-                </div>
-                <div class="card-body" style="display: none;">
-                    <p><strong>Horodateur:</strong> ${row["Horodateur"]}</p>
-                    <p><strong>Objectifs:</strong> ${row["Quels sont les principaux objectifs que vous visez en matière de mobilité durable ?"]}</p>
-                    <p><strong>Besoins:</strong> ${row["Quels sont vos besoins spécifiques pour atteindre ces objectifs ?"]}</p>
-                    <p><strong>Collaboration:</strong> ${row["Travaillez-vous actuellement avec d'autres acteurs du secteur pour répondre à ces besoins ?\n(Oui/Non)\nSi oui, veuillez préciser avec qui et comment."]}</p>
-                    <p><strong>Obstacles:</strong> ${row["Quels sont les principaux obstacles auxquels vous faites face dans le développement de solutions de mobilité durable ?"]}</p>
-                    <p><strong>Priorités:</strong> ${row["Quelles sont vos priorités pour surmonter ces obstacles ?"]}</p>
-                    <p><strong>Solutions Innovantes:</strong> ${row["Avez-vous mis en œuvre des solutions innovantes dans le domaine de la mobilité durable ?\n(Oui/Non)\nSi oui, veuillez détailler les solutions mises en place."]}</p>
-                    <p><strong>Innovations Futures:</strong> ${row["Quels types d'innovation technologique ou de collaboration souhaiteriez-vous développer à l'avenir ?"]}</p>
-                    <p><strong>Contact:</strong> ${contactAnswer}</p>
-                    ${contactAnswer.toLowerCase() === "oui" && coordonnees 
-                    ? `<p><strong>Coordonnées:</strong> ${coordonnees}</p>` 
-                    : ""}
-                    <p><strong>Nom et Prénom :</strong> ${row["Prénom"]} ${row["Nom"]}</p>
-                    <p><strong>Email :</strong> ${row["Email"]}</p>
-                    <p><strong>Adresse :</strong> ${row["Adresse\n"]}</p>
-                    <button class="btn btn-secondary toggle-details">Lire moins</button>
-                </div>
-            </div>`;
-        $("#data-cards").append(card);
-    });
-
-    $(".toggle-details").click(function() {
-        var cardBody = $(this).closest(".card").find(".card-body");
-        cardBody.slideToggle();
-        $(this).text($(this).text() === "Lire plus" ? "Lire moins" : "Lire plus");
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
     });
 }
+
+function displayCards(data) {
+    const container = document.getElementById('data-cards');
+    container.innerHTML = '';
+
+    data.forEach(item => {
+        const contactAnswer = item["Souhaitez-vous être contacté"] || "Non renseigné";
+        const coordonnees = item["Coordonnées"] || "";
+        
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg shadow-md mb-4 transition-all duration-300 hover:shadow-lg';
+        
+        const headerContent = `
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h6 class="text-xl font-semibold text-gray-800 mb-2">
+                            ${item["Nom du trajet"] || "Non spécifié"}                            
+                        </h6>
+                      <p class="text-sm text-gray-600">
+                        Nom: ${item["Nom"] || "Non spécifié"}  Prénom: ${item["Prénom"] || "Non spécifié"}
+                    </p>
+
+                    </div>
+                    <button class="toggle-details px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200">
+                        Lire plus
+                    </button>
+                </div>
+            </div>`;
+
+        // Construction du corps de la carte (initialement caché)
+        const bodyContent = `
+            <div class="card-body hidden p-4 bg-gray-50">
+                <div class="grid grid-cols-1 gap-4">
+                    ${Object.entries(item).map(([key, value]) => {
+                        if (key !== "Nom de l'organisation" && key !== "Rôle") {
+                            return `
+                                <div class="border-b border-gray-200 pb-2">
+                                    <span class="font-semibold text-gray-700">${key}: </span>
+                                    <span class="text-gray-600">${value || "Non renseigné"}</span>
+                                </div>`;
+                        }
+                        return '';
+                    }).join('')}
+                    <button class="toggle-details w-full mt-4 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors duration-200">
+                        Lire moins
+                    </button>
+                </div>
+            </div>`;
+
+        card.innerHTML = headerContent + bodyContent;
+        container.appendChild(card);
+
+        // Ajout des événements pour les boutons
+        const toggleButtons = card.querySelectorAll('.toggle-details');
+        const cardBody = card.querySelector('.card-body');
+
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                cardBody.classList.toggle('hidden');
+                toggleButtons.forEach(btn => {
+                    btn.textContent = cardBody.classList.contains('hidden') ? 'Lire plus' : 'Lire moins';
+                });
+            });
+        });
+    });
+}
+
+function createSearchBar() {
+    const searchContainer = document.createElement('div');
+    searchContainer.className = 'mb-6 p-4 bg-white rounded-lg shadow-md';
+    searchContainer.innerHTML = `
+        <div class="relative">
+            <input 
+                type="text" 
+                placeholder="Rechercher..." 
+                class="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        </div>
+    `;
+    
+    const dataContainer = document.getElementById('data-cards');
+    dataContainer.parentNode.insertBefore(searchContainer, dataContainer);
+    
+    const searchInput = searchContainer.querySelector('input');
+    searchInput.addEventListener('input', (e) => filterData(e.target.value));
+}
+
+function filterData(searchTerm) {
+    if (!searchTerm) {
+        displayCards(allData);
+        return;
+    }
+    
+    const filteredData = allData.filter(item => {
+        return Object.values(item).some(value => 
+            value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    });
+    
+    displayCards(filteredData);
+}
+
+$(document).ready(function() {
+    $("#data-cards").html(`
+        <div class="flex items-center justify-center p-8">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <span class="ml-3 text-gray-600">Chargement des données...</span>
+        </div>
+    `);
+    
+    createSearchBar();
+    
+    d3.csv(CONFIG.csvUrl).then(data => {
+        allData = data;
+        displayCards(data);
+    }).catch(error => {
+        console.error("Erreur lors du chargement des données :", error);
+        $("#data-cards").html(`
+            <div class="text-center p-8">
+                <div class="text-red-500 text-xl">
+                    <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Erreur lors du chargement des données
+                </div>
+            </div>
+        `);
+    });
+});

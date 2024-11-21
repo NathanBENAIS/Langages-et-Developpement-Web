@@ -1,42 +1,29 @@
-// Initialiser l'onglet actif par défaut
-$(".nav-link").removeClass("active");
-$(".nav-link").first().addClass("active");
+// JavaScript pour gérer les changements de tabs
+document.addEventListener("DOMContentLoaded", () => {
+    const tabButtons = document.querySelectorAll("[data-tabs-target]");
+    const tabContents = document.querySelectorAll("[role='tabpanel']");
 
-// Afficher uniquement la section des cartes lors du chargement
-$("#data-cards").show();
+    tabButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            // Cache tous les contenus d'onglets
+            tabContents.forEach(content => {
+                content.classList.add("hidden");
+            });
 
-// Gestion des clics sur les onglets
+            // Supprime la classe active de tous les boutons d'onglets
+            tabButtons.forEach(btn => {
+                btn.classList.remove("border-blue-500", "text-blue-500");
+            });
 
-$(".nav-link").on("click", function() {
-    const tabId = $(this).text().trim();
-    
-    // Masquer tous les contenus
-    $("#data-cards, #map, #charts-container, #history-container, #add-event-container").hide();
+            // Affiche le contenu correspondant à l'onglet cliqué
+            const tabId = button.getAttribute("data-tabs-target");
+            document.querySelector(tabId).classList.remove("hidden");
 
-    // Afficher le bon contenu en fonction de l'onglet sélectionné
-    switch(tabId) {
-        case "Événement":
-            $("#data-cards").show();
-            break;
-        case "Carte interactive":
-            $("#map").show();
-            break;
-        case "Graphiques":
-            $("#charts-container").show();
-            updateCharts(); // Fonction définie dans script.js
-            break;
-        case "Historique":
-            $("#history-container").show();
-            updateHistoryChart(); // Fonction définie dans script.js
-            break;
-        case "Ajout un Événement":
-            $("#add-event-container").show();
-            break;
-        default:
-            alert(tabId);
-    }
+            // Ajoute une classe pour styliser l'onglet actif
+            button.classList.add("border-blue-500", "text-blue-500");
+        });
+    });
 
-    // Mettre à jour la classe active sur les onglets
-    $(".nav-link").removeClass("active");
-    $(this).addClass("active");
+    // Active le premier onglet par défaut
+    tabButtons[0].click();
 });

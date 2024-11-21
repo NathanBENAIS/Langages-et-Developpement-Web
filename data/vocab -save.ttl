@@ -19,7 +19,7 @@ bc:Trajet a rdfs:Class ;
 
 bc:ModeTransport a rdfs:Class ;
     rdfs:label "Mode de Transport" ;
-    rdfs:comment "Classe pour les différents modes de transport" ;
+    rdfs:comment "Classe abstraite pour les différents modes de transport" ;
     rdfs:subClassOf o:Resource ;
     vs:term_status "experimental" .
 
@@ -29,7 +29,7 @@ bc:Utilisateur a rdfs:Class ;
     rdfs:subClassOf o:Resource ;
     vs:term_status "experimental" .
 
-# Sous-classes de ModeTransport 
+# Sous-classes de ModeTransport
 bc:Voiture a rdfs:Class ;
     rdfs:label "Voiture" ;
     rdfs:subClassOf bc:ModeTransport .
@@ -61,13 +61,6 @@ bc:pointArrivee a rdf:Property ;
     rdfs:label "Point d'arrivée" ;
     rdfs:domain bc:Trajet ;
     rdfs:range xsd:string .
-
-# Relation générique entre Trajet et ModeTransport
-bc:utiliseModeTransport a rdf:Property ;
-    rdfs:label "Utilise mode de transport" ;
-    rdfs:comment "Relation entre un trajet et un mode de transport spécifique" ;
-    rdfs:domain bc:Trajet ;
-    rdfs:range bc:ModeTransport .
 
 # Propriétés communes aux modes de transport
 bc:duree a rdf:Property ;
@@ -109,10 +102,3 @@ bc:email a rdf:Property ;
     rdfs:label "Email" ;
     rdfs:domain bc:Utilisateur ;
     rdfs:range xsd:string .
-
-# Relation entre Utilisateur et Trajet
-bc:possedeTrajet a rdf:Property ;
-    rdfs:label "Possède trajet" ;
-    rdfs:comment "Relation entre un utilisateur et ses trajets" ;
-    rdfs:domain bc:Utilisateur ;
-    rdfs:range bc:Trajet .
