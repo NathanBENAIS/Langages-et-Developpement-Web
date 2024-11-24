@@ -1,34 +1,39 @@
 // scriptComponent.js
 async function loadComponents() {
     try {
-        // Charger le header
-        const headerResponse = await fetch('component/header.html');
-        const headerData = await headerResponse.text();
-        document.getElementById('header-container').innerHTML = headerData;
+        const containers = {
+            header: document.getElementById('header-container'),
+            footer: document.getElementById('footer-container'),
+            route: document.getElementById('route-container'),
+            weather: document.getElementById('weather')
+        };
 
-        // Charger le footer
-        const footerResponse = await fetch('component/footer.html');
-        const footerData = await footerResponse.text();
-        document.getElementById('footer-container').innerHTML = footerData;
+        // Charger les composants seulement s'ils existent dans la page
+        if (containers.header) {
+            const headerResponse = await fetch('component/header.html');
+            const headerData = await headerResponse.text();
+            containers.header.innerHTML = headerData;
+        }
 
-        // Charger la route si l'élément existe
-        const routeContainer = document.getElementById('route-container');
-        if (routeContainer) {
+        if (containers.footer) {
+            const footerResponse = await fetch('component/footer.html');
+            const footerData = await footerResponse.text();
+            containers.footer.innerHTML = footerData;
+        }
+
+        if (containers.route) {
             const routeResponse = await fetch('route.html');
             const routeData = await routeResponse.text();
-            routeContainer.innerHTML = routeData;
+            containers.route.innerHTML = routeData;
         }
 
-
-        // Charger le composant météo dans l'onglet settings
-        const settingsPanel = document.getElementById('weather');
-        if (settingsPanel) {
+        if (containers.weather) {
             const weatherResponse = await fetch('weather.html');
             const weatherData = await weatherResponse.text();
-            settingsPanel.innerHTML = weatherData;
+            containers.weather.innerHTML = weatherData;
         }
 
-        // Important : Mettre à jour l'affichage utilisateur seulement après que tout est chargé
+        // Mettre à jour l'affichage utilisateur
         updateUserHeader();
         initializeAuth();
 
@@ -37,6 +42,7 @@ async function loadComponents() {
     }
 }
 
+// Rest of the code remains the same...
 function updateUserHeader() {
     try {
         const userStr = localStorage.getItem('user');

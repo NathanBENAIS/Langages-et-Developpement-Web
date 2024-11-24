@@ -16,91 +16,157 @@ export class auth {
         this.fctAuthOK = params.fctAuthOK ? params.fctAuthOK : [];
 
         this.omk = false;
-        this.userAdmin=false;
-        this.user=false;
+        this.userAdmin = false;
+        this.user = false;
+        this.initialized = false;
+        
         var iconIn='<i class="fas fa-sign-in-alt"></i>', 
             iconOut='<i class="fa-solid fa-right-from-bracket"></i>',
             btnLogin, nameLogin, alertAuth, alertMail, alertServer, alertUnknown, 
             gisInited, gapiInited, tokenClient;
                 
-        this.init = function () {
-            if(me.apiOmk){
-                me.apiOmk += me.apiOmk.slice(-1)=='/' ? "" : "/";
-                me.omk = new omk({'api':me.apiOmk});
-                if(me.navbar)createNavBar();
-                me.getUser();
-            }  
-            if(me.gCLIENT_ID){
-                document.getElementById('btnAuth').style.visibility = 'hidden';
-                d3.select('#btnAuth').on('click',handleAuthClick)
-                tokenClient = google.accounts.oauth2.initTokenClient({
-                    client_id: me.gCLIENT_ID,
-                    scope: me.gSCOPES,
-                    callback: '', // defined later
-                  });
-                gisInited = true;
-                gapi.load('client', initializeGapiClient);
-            }                                                                                        
+        this.init = async function () {
+            this.initialize = async function() {
+                this.apiOmk = params.apiOmk ? params.apiOmk : false;
+                this.mail = params.mail ? params.mail : false;
+                this.ident = params.ident ? params.ident : false;
+                this.key = params.key ? params.key : false;
+    
+                try {
+                    if(this.apiOmk) {
+                        this.apiOmk += this.apiOmk.slice(-1)=='/' ? "" : "/";
+                        // Réinitialiser l'objet omk avec les nouveaux paramètres
+                        this.omk = new omk({
+                            'api': this.apiOmk,
+                            'key': this.key,
+                            'ident': this.ident,
+                            'mail': this.mail,
+                            'vocabs': ["dcterms", "bc"]
+                        });
+    
+                        // Attendre le chargement des propriétés
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+    
+                        // Charger les propriétés explicitement
+                        for (const vocab of ["dcterms", "bc"]) {
+                            await this.omk.getProps(vocab);
+                        }
+                        
+                        this.initialized = true;
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    console.error("Erreur d'initialisation:", error);
+                    throw error;
+                }
+            };
+    
+            // Ajouter une méthode de déconnexion explicite
+            this.logout = function() {
+                this.mail = "";
+                this.ident = "";
+                this.key = "";
+                this.apiOmk = "";
+                this.user = false;
+                this.initialized = false;
+                this.keyOpenai = "";
+                this.orgaOpenai = "";
+                this.omk = null;
+            };
+    
+            // Modifier la méthode getUser pour réinitialiser si nécessaire
+            this.getUser = async function(cb) {
+                try {
+                    this.apiOmk = this.apiOmk || (this.m?.select("#authServer").node()?.value || "");
+                    this.mail = this.mail || (this.m?.select("#authMail").node()?.value || "");
+                    this.ident = this.ident || (this.m?.select("#authIdent").node()?.value || "");
+                    this.key = this.key || (this.m?.select("#authPwd").node()?.value || "");
+    
+                    if (!this.mail || !this.ident || !this.key) {
+                        if(cb) cb(false);
+                        return false;
+                    }
+    
+                    // Réinitialiser l'authentification si nécessaire
+                    if (!this.initialized || !this.omk) {
+                        await this.initialize();
+                    }
+    
+                    const query = `property[0][property]=bc:email&property[0][type]=eq&property[0][text]=${encodeURIComponent(this.mail)}`;
+                    const response = await this.searchItems(query);
+    
+                    if (!response || response.length === 0) {
+                        if(alertMail) alertMail.show();
+                        this.user = false;
+                        return cb ? cb(false) : false;
+                    }
+    
+                    this.user = response[0];
+                    this.userAdmin = this.user["o:role"] == 'global_admin';
+                    
+                    if(nameLogin) nameLogin.html(this.user['o:name']);
+                    if(btnLogin) btnLogin.attr('class', 'btn btn-danger').html(iconOut);
+                    
+                    this.user.id = this.user['o:id'];
+                    
+                    if(this.modal) this.modal.hide();
+                    
+                    this.fctAuthOK.forEach(fct => {
+                        if(fct.name == 'loadParcours') fct();
+                    });
+    
+                    return cb ? cb(this.user) : this.user;
+                } catch (error) {
+                    console.error("Error in getUser:", error);
+                    return cb ? cb(false) : false;
+                }
+            };
+                                                                               
         }
 
-
-        /**
-         * Callback after the API client is loaded. Loads the
-         * discovery doc to initialize the API.
-         */
         async function initializeGapiClient() {
             await gapi.client.init({
-            apiKey: me.gAPI_KEY,
-            discoveryDocs: [me.gDISCOVERY_DOC],
+                apiKey: me.gAPI_KEY,
+                discoveryDocs: [me.gDISCOVERY_DOC],
             });
             gapiInited = true;
             showBtnAuth();
             handleAuthClick();
         }
 
-        /**
-         * Enables user interaction after all libraries are loaded.
-         */
         function showBtnAuth() {
             document.getElementById('btnAuth').style.visibility = 'visible';
         }
 
+        function handleAuthClick() {
+            tokenClient.callback = async (resp) => {
+                if (resp.error !== undefined) {
+                    throw (resp);
+                }
+                d3.select('#btnAuth').html('<i class="fa-solid fa-arrows-rotate"></i>');
+                me.fctAuthOK.forEach(fct => {
+                    if(fct.name=='loadCalendars')fct(tokenClient);            
+                });
+            };
 
-      /**
-       *  Sign in the user upon button click.
-       */
-      function handleAuthClick() {
-        tokenClient.callback = async (resp) => {
-          if (resp.error !== undefined) {
-            throw (resp);
-          }
-          //document.getElementById('signout_button').style.visibility = 'visible';          
-          d3.select('#btnAuth').html('<i class="fa-solid fa-arrows-rotate"></i>');
-          me.fctAuthOK.forEach(fct => {
-            if(fct.name=='loadCalendars')fct(tokenClient);            
-          })
-        };
-
-        if (gapi.client.getToken() === null) {
-          // Prompt the user to select a Google Account and ask for consent to share their data
-          // when establishing a new session.
-          tokenClient.requestAccessToken({prompt: 'consent'});
-        } else {
-          // Skip display of account chooser and consent dialog for an existing session.
-          tokenClient.requestAccessToken({prompt: ''});
+            if (gapi.client.getToken() === null) {
+                tokenClient.requestAccessToken({prompt: 'consent'});
+            } else {
+                tokenClient.requestAccessToken({prompt: ''});
+            }
         }
-      }
-
 
         function createNavBar() {
             //création des éléments html
             let htmlNavBar = `<div class="btn-group">
-<div id="userLogin" class="me-2">Anonymous</div>                                        
-<button id="btnAddUser" style="visibility:hidden;" title="Add user" class="btn btn-outline-danger" ><i class="fa-solid fa-user-plus"></i></button>
-<button id="btnLogin" title="Connexion" class="btn btn-outline-success" >${iconIn}</button>
-                                            
-</div>`;
-            me.navbar.append('li').attr('class', "nav-item ms-2 me-1").html(htmlNavBar);
+            <div id="userLogin" class="me-2">Anonymous</div>                                        
+            <button id="btnAddUser" style="visibility:hidden;" title="Add user" class="btn btn-outline-danger" >
+                <i class="fa-solid fa-user-plus"></i>
+            </button>
+            <button id="btnLogin" title="Connexion" class="btn btn-outline-success">${iconIn}</button>
+        </div>`;
+        me.navbar.append('li').attr('class', "nav-item ms-2 me-1").html(htmlNavBar);
             let htmlModal = `
 <div class="modal-dialog">
 <div class="modal-content">
@@ -248,39 +314,91 @@ export class auth {
             });
         }
 
-        this.getUser = function (cb){
+        this.getUser = async function (cb) {
+            try {
+                if(!me.mail || !me.ident || !me.key){
+                    if(cb) cb(me.user);
+                    return;
+                }
 
-            //vérifie la connexion à OMK
-            me.apiOmk = me.apiOmk ? me.apiOmk : me.m.select("#authServer").node().value;
-            if(me.apiOmk) me.apiOmk += me.apiOmk.slice(-1)=='/' ? "" : "/";
-            me.mail = me.mail ? me.mail : me.m.select("#authMail").node().value;
-            me.ident = me.ident ? me.ident : me.m.select("#authIdent").node().value;
-            me.key = me.key ? me.key : me.m.select("#authPwd").node().value;
-            if(!me.mail || !me.ident || !me.key){
-                if(cb)cb(me.user);
-            }else{
-                me.omk = new omk({'api':me.apiOmk,'key':me.key,'ident':me.ident,'mail':me.mail});
-                me.omk.getUser(u=>{
-                    if(!u){
-                        alertMail.show();
-                        me.user = false;
-                        me.omk = false;                                                                     
-                    }else {
-                        me.user = u;
-                        me.userAdmin = me.user["o:role"] == 'global_admin';            
-                        if(nameLogin)nameLogin.html(me.user['o:name']);
-                        if(btnLogin)btnLogin.attr('class','btn btn-danger').html(iconOut);                        
-                        me.user.id=me.user['o:id'];
-                        if(me.modal)me.modal.hide();
-                        me.fctAuthOK.forEach(fct => {
-                            if(fct.name=='loadParcours')fct();            
-                        })
-                    }
-                    if(cb)cb(me.user);
-                })    
-            };
+                if(!me.omk) {
+                    me.omk = new omk({
+                        'api': me.apiOmk,
+                        'key': me.key,
+                        'ident': me.ident,
+                        'mail': me.mail
+                    });
+                }
+
+                const query = `property[0][property]=bc:email&property[0][type]=eq&property[0][text]=${encodeURIComponent(me.mail)}`;
+                const response = await me.searchItems(query);
+
+                if(!response || response.length === 0){
+                    if(alertMail) alertMail.show();
+                    me.user = false;
+                    me.omk = false;                                                                     
+                } else {
+                    me.user = response[0];
+                    me.userAdmin = me.user["o:role"] == 'global_admin';            
+                    if(nameLogin) nameLogin.html(me.user['o:name']);
+                    if(btnLogin) btnLogin.attr('class','btn btn-danger').html(iconOut);                        
+                    me.user.id = me.user['o:id'];
+                    if(me.modal) me.modal.hide();
+                    me.fctAuthOK.forEach(fct => {
+                        if(fct.name=='loadParcours') fct();            
+                    });
+                }
+
+                if(cb) cb(me.user);
+                return me.user;
+
+            } catch (error) {
+                console.error("Error getting user:", error);
+                if(cb) cb(false);
+                return false;
+            }
         }
 
-        this.init();
+        // Nouvelles méthodes ajoutées
+
+        this.searchItems = async function(query) {
+            if (!this.omk) {
+                throw new Error('OMK non initialisé');
+            }
+            try {
+                return await this.omk.searchItems(query);
+            } catch (error) {
+                console.error("Error searching items:", error);
+                throw error;
+            }
+        }
+
+        this.isInitialized = function() {
+            return this.initialized && this.omk && this.omk.props && this.omk.props.length > 0;
+        }
+
+        this.waitForInitialization = async function() {
+            let attempts = 0;
+            const maxAttempts = 10;
+            
+            while (attempts < maxAttempts) {
+                if (this.isInitialized()) {
+                    return true;
+                }
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                attempts++;
+            }
+            
+            throw new Error("Timeout waiting for initialization");
+        }
+
+        this.getPropertyValue = function(item, property) {
+            return item[property] && item[property][0] ? item[property][0]['@value'] : '';
+        }
+
+        // Démarrer l'initialisation
+        this.init().catch(error => {
+            console.error("Failed to initialize auth:", error);
+        });
     }
 }

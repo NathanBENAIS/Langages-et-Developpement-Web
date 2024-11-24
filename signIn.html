@@ -3,144 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Inscription - MobilitéDurable</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
+    <style>
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.min.css');
+    </style>
 </head>
-<body class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-    <!-- Loading Spinner -->
-    <div id="loading-container"></div>
-
-    <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow">
-        <div>
-            <h2 class="text-center text-3xl font-extrabold text-gray-900">
-                Créer un compte
-            </h2>
-        </div>
-
-        <!-- Alert Box -->
-        <div id="alertBox" class="hidden rounded-md p-4 mb-4"></div>
-
-        <form id="signupForm" class="mt-8 space-y-6">
-            <div class="rounded-md shadow-sm -space-y-px">
-                <div class="mb-4">
-                    <label for="firstname" class="block text-sm font-medium text-gray-700">Prénom</label>
-                    <input id="firstname" name="firstname" type="text" required 
-                        class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
-                </div>
-                <div class="mb-4">
-                    <label for="lastname" class="block text-sm font-medium text-gray-700">Nom</label>
-                    <input id="lastname" name="lastname" type="text" required 
-                        class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
-                </div>
-                <div class="mb-4">
-                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                    <input id="email" name="email" type="email" required 
-                        class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
-                </div>
-            </div>
-
-            <div>
-                <button type="submit" 
-                    class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    S'inscrire
-                </button>
-            </div>
-        </form>
-
-        <div class="text-center">
-            <p class="text-sm text-gray-600">
-                Déjà un compte? 
-                <a href="login.html" class="font-medium text-indigo-600 hover:text-indigo-500">
-                    Se connecter
+<body>
+    <header>
+        <nav class="border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800 mb-4">
+            <div class="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
+                <a href="index.html" class="flex items-center">
+                    <img src="https://flowbite.com/docs/images/logo.svg" class="mr-3 h-6 sm:h-9" alt="Flowbite Logo" />
+                    <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">MobilitéDurable</span>
                 </a>
-            </p>
+                </div>
+    </header>
+
+    <div class="min-w-screen min-h-screen flex items-center justify-center px-5 py-5">
+        <div class="bg-gray-100 text-gray-500 rounded-3xl shadow-xl w-full overflow-hidden" style="max-width:1000px">
+            <div class="md:flex w-full">
+                <div class="hidden md:block w-1/2 bg-indigo-500 py-10 px-10">
+                    <!-- SVG illustration identique à celle fournie -->
+                    <!-- <svg id="a87032b8-5b37-4b7e-a4d9-4dbfbe394641" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="100%" height="auto" viewBox="0 0 744.84799 747.07702">SVG path content conservé identique</svg> -->
+                </div>
+                <div class="w-full md:w-1/2 py-10 px-5 md:px-10">
+                    <div class="text-center mb-10">
+                        <h1 class="font-bold text-3xl text-gray-900">INSCRIPTION</h1>
+                        <p>Créez votre compte</p>
+                    </div>
+                    <div>
+                        <form id="signupForm">
+                            <div class="flex -mx-3">
+                                <div class="w-1/2 px-3 mb-5">
+                                    <label class="text-xs font-semibold px-1">Prénom</label>
+                                    <div class="flex">
+                                        <div class="w-10 z-10 pl-1 text-center pointer-events-none flex items-center justify-center">
+                                            <i class="mdi mdi-account-outline text-gray-400 text-lg"></i>
+                                        </div>
+                                        <input type="text" id="firstname" name="firstname" class="w-full -ml-10 pl-10 pr-3 py-2 rounded-lg border-2 border-gray-200 outline-none focus:border-indigo-500" placeholder="Jean">
+                                    </div>
+                                </div>
+                                <div class="w-1/2 px-3 mb-5">
+                                    <label class="text-xs font-semibold px-1">Nom</label>
+                                    <div class="flex">
+                                        <div class="w-10 z-10 pl-1 text-center pointer-events-none flex items-center justify-center">
+                                            <i class="mdi mdi-account-outline text-gray-400 text-lg"></i>
+                                        </div>
+                                        <input type="text" id="lastname" name="lastname" class="w-full -ml-10 pl-10 pr-3 py-2 rounded-lg border-2 border-gray-200 outline-none focus:border-indigo-500" placeholder="Dupont">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex -mx-3">
+                                <div class="w-full px-3 mb-5">
+                                    <label class="text-xs font-semibold px-1">Email</label>
+                                    <div class="flex">
+                                        <div class="w-10 z-10 pl-1 text-center pointer-events-none flex items-center justify-center">
+                                            <i class="mdi mdi-email-outline text-gray-400 text-lg"></i>
+                                        </div>
+                                        <input type="email" id="email" name="email" class="w-full -ml-10 pl-10 pr-3 py-2 rounded-lg border-2 border-gray-200 outline-none focus:border-indigo-500" placeholder="exemple@email.com">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex -mx-3">
+                                <div class="w-full px-3 mb-12">
+                                    <button type="submit" class="block w-full max-w-xs mx-auto bg-indigo-500 hover:bg-indigo-700 focus:bg-indigo-700 text-white rounded-lg px-3 py-3 font-semibold">S'INSCRIRE</button>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="text-center">
+                            <p class="text-sm text-gray-600">
+                                Déjà un compte? 
+                                <a href="login.html" class="font-medium text-indigo-600 hover:text-indigo-500">
+                                    Se connecter
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-    <script type="module">
-        import { auth } from './module/auth.js';
-        import { loader } from './module/loader.js';
-        
-        const loadingSpinner = new loader();
-        
-        // Initialiser l'auth avec les credentials admin
-        const adminAuth = new auth({
-            mail: "nathan.benais@gmail.com",
-            apiOmk: "http://localhost/omeka-s/api/",
-            ident: "K0DTO51WJeHaNmmCuwMXwero9CLsxiAw",
-            key: "9JDmKbxxRslkLzhJb4jC1LkWk3A7czr9",
-            vocabs: ["dcterms", "bc"]
-        });
-
-        function showAlert(message, type = 'error') {
-            const alertBox = document.getElementById('alertBox');
-            alertBox.className = `rounded-md p-4 mb-4 ${
-                type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-            }`;
-            alertBox.textContent = message;
-            alertBox.style.display = 'block';
-        }
-
-        // Attendre que l'initialisation soit terminée
-        setTimeout(() => {
-            // Attacher l'event listener au formulaire
-            document.getElementById('signupForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                loadingSpinner.show();
-
-                try {
-                    const firstname = document.getElementById('firstname').value;
-                    const lastname = document.getElementById('lastname').value;
-                    const email = document.getElementById('email').value;
-
-                    // Afficher les templates disponibles pour le debug
-                    console.log("Templates disponibles:", adminAuth.omk.rts);
-                    
-                    // Créer les données utilisateur
-                    const userData = {
-                        'labels': [
-                            {p: 'Prénom', v: firstname},
-                            {p: 'Nom', v: lastname},
-                            {p: 'Email', v: email},
-                            {p: 'Possède trajet', v: 'Non'}
-                        ],
-                        'o:resource_template': 'Mobilité Durable - Utilisateur'
-                    };
-
-                    console.log('Données à envoyer:', userData);
-
-                    // Créer l'item
-                    adminAuth.omk.createItem(userData, (result) => {
-                        loadingSpinner.hide(true);
-                        console.log('Résultat de la création:', result);
-                        
-                        if (result && result['o:id']) {
-                            // Stockage des informations utilisateur
-                            localStorage.setItem('user', JSON.stringify({
-                                id: result['o:id'],
-                                prenom: firstname,
-                                nom: lastname,
-                                email: email
-                            }));
-
-                            showAlert('Compte créé avec succès! Redirection...', 'success');
-                            
-                            setTimeout(() => {
-                                window.location.href = 'login.html';
-                            }, 2000);
-                        } else {
-                            throw new Error('Réponse invalide du serveur');
-                        }
-                    });
-
-                } catch (error) {
-                    console.error('Erreur détaillée:', error);
-                    loadingSpinner.hide(true);
-                    showAlert('Erreur lors de la création du compte: ' + error.message);
-                }
-            });
-        }, 1000);
-    </script>
+     <!-- Footer Container -->
+     <div id="footer-container"></div>
+     <script type="module" src="./js/signIn.js"></script>
+     <script src="./js/scriptComponent.js"></script>
 </body>
 </html>

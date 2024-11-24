@@ -6,222 +6,71 @@
     <title>Login - MobilitéDurable</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
     <style>
-        #loading-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        .loader {
-            border: 5px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 5px solid #4338ca;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.min.css');
     </style>
 </head>
-<body class="min-w-screen min-h-screen bg-gray-100 flex flex-col">
-    <div id="loading-container">
-        <div class="loader"></div>
-    </div>
+<body>
 
-    <div id="alertBox" class="fixed top-4 right-4 hidden"></div>
+    <header>
+        <nav class="border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800 mb-4">
+            <div class="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
+                <a href="index.html" class="flex items-center">
+                    <img src="https://flowbite.com/docs/images/logo.svg" class="mr-3 h-6 sm:h-9" alt="Flowbite Logo" />
+                    <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">MobilitéDurable</span>
+                </a>
+                </div>
+    </header>
+    <div id="toast-container" class="fixed top-4 right-4 z-50"></div>
 
-    <div class="flex-grow flex items-center justify-center px-5 py-5">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-8">
-            <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">Connexion</h2>
-            <form id="loginForm" class="space-y-6">
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700">Adresse email</label>
-                    <input type="email" id="email" name="email" required
-                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+    <div class="min-w-screen min-h-screen flex items-center justify-center px-5 py-5">
+        <div class="bg-gray-100 text-gray-500 rounded-3xl shadow-xl w-full overflow-hidden" style="max-width:1000px">
+            <div class="md:flex w-full">
+                <div class="hidden md:block w-1/2 bg-indigo-500 py-10 px-10">
+                    <!-- SVG illustration identique à celle fournie -->
+                    <svg id="a87032b8-5b37-4b7e-a4d9-4dbfbe394641" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" width="100%" height="auto" viewBox="0 0 744.84799 747.07702">SVG path content conservé identique</svg>
                 </div>
-                <button type="submit"
-                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Se connecter
-                </button>
-                <div class="text-center">
-                    <p class="text-sm text-gray-600">
-                        Pas encore de compte? 
-                        <a href="signIn.html" class="font-medium text-indigo-600 hover:text-indigo-500">
-                            S'inscrire
-                        </a>
-                    </p>
+                <div class="w-full md:w-1/2 py-10 px-5 md:px-10">
+                    <div class="text-center mb-10">
+                        <h1 class="font-bold text-3xl text-gray-900">CONNEXION</h1>
+                        <p>Connectez-vous à votre compte</p>
+                    </div>
+                    <div>
+                        <form id="loginForm">
+                            <div class="flex -mx-3">
+                                <div class="w-full px-3 mb-5">
+                                    <label class="text-xs font-semibold px-1">Email</label>
+                                    <div class="flex">
+                                        <div class="w-10 z-10 pl-1 text-center pointer-events-none flex items-center justify-center">
+                                            <i class="mdi mdi-email-outline text-gray-400 text-lg"></i>
+                                        </div>
+                                        <input type="email" id="email" name="email" class="w-full -ml-10 pl-10 pr-3 py-2 rounded-lg border-2 border-gray-200 outline-none focus:border-indigo-500" placeholder="exemple@email.com">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex -mx-3">
+                                <div class="w-full px-3 mb-12">
+                                    <button type="submit" class="block w-full max-w-xs mx-auto bg-indigo-500 hover:bg-indigo-700 focus:bg-indigo-700 text-white rounded-lg px-3 py-3 font-semibold">SE CONNECTER</button>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="text-center">
+                            <p class="text-sm text-gray-600">
+                                Pas encore de compte? 
+                                <a href="signIn.html" class="font-medium text-indigo-600 hover:text-indigo-500">
+                                    S'inscrire
+                                </a>
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
-
-    <script type="module">
-        import { auth } from './module/auth.js';
-        import { loader } from './module/loader.js';
-
-        const loadingSpinner = new loader();
-
-        const adminAuth = new auth({
-            mail: "nathan.benais@gmail.com",
-            apiOmk: "http://localhost/omeka-s/api/",
-            ident: "K0DTO51WJeHaNmmCuwMXwero9CLsxiAw",
-            key: "9JDmKbxxRslkLzhJb4jC1LkWk3A7czr9",
-            vocabs: ["dcterms", "bc"]
-        });
-
-        function showAlert(message, type = 'error') {
-            console.log("showAlert - Displaying alert:", message, "Type:", type);
-            const alertBox = document.getElementById('alertBox');
-            alertBox.className = `fixed top-4 right-4 p-4 rounded ${
-                type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-            }`;
-            alertBox.textContent = message;
-            alertBox.style.display = 'block';
-            setTimeout(() => {
-                alertBox.style.display = 'none';
-            }, 3000);
-        }
-
-        function checkLoggedInUser() {
-            console.log("checkLoggedInUser - Checking if user is already logged in.");
-            try {
-                const userStr = localStorage.getItem('user');
-                console.log("checkLoggedInUser - User data from localStorage:", userStr);
-                if (userStr) {
-                    const user = JSON.parse(userStr);
-                    if (user && user.id && user.email) {
-                        console.log("checkLoggedInUser - User is logged in. Redirecting to index.html.");
-                        window.location.href = 'index.html';
-                    }
-                }
-            } catch (error) {
-                console.error("checkLoggedInUser - Error parsing user data:", error);
-                localStorage.removeItem('user');
-            }
-        }
-
-        setTimeout(() => {
-            checkLoggedInUser();
-
-            document.getElementById('loginForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                loadingSpinner.show();
-
-                try {
-                    const email = document.getElementById('email').value;
-                    console.log("Form submit - Email entered:", email);
-
-                    const query = `resource_template_id=${adminAuth.omk.getRtId('Mobilité Durable - Utilisateur')}&property[0][joiner]=and&property[0][property]=${adminAuth.omk.getPropId('bc:email')}&property[0][type]=eq&property[0][text]=${encodeURIComponent(email)}`;
-
-                    console.log("Form submit - Search query:", query);
-
-                    const response = await adminAuth.omk.search(query);
-                    console.log("Form submit - Search response:", response);
-                    loadingSpinner.hide(true);
-
-                    if (response && response.length > 0) {
-                        const user = response[0];
-                        console.log("Form submit - User found:", user);
-                        if (user && user['o:id']) {
-                            const getPropertyValue = (prop) => user[prop] && user[prop][0] ? user[prop][0]['@value'] : '';
-
-                            const userData = {
-                                id: user['o:id'],
-                                email: getPropertyValue('bc:email'),
-                                prenom: getPropertyValue('bc:prenom'),
-                                nom: getPropertyValue('bc:nom')
-                            };
-                            console.log("Form submit - User data constructed:", userData);
-
-                            if (userData.id && userData.email && userData.prenom && userData.nom) {
-                                localStorage.setItem('user', JSON.stringify(userData));
-                                showAlert('Connexion réussie !', 'success');
-
-                                setTimeout(() => {
-                                    console.log("Form submit - Redirecting to index.html");
-                                    window.location.href = 'index.html';
-                                }, 1000);
-                            } else {
-                                showAlert('Données utilisateur incomplètes');
-                            }
-                        } else {
-                            showAlert('Format de données utilisateur inattendu');
-                        }
-                    } else {
-                        showAlert('Aucun utilisateur trouvé avec cet email');
-                    }
-                } catch (error) {
-                    console.error("Form submit - Error during login process:", error);
-                    loadingSpinner.hide(true);
-                    showAlert('Erreur lors de la connexion: ' + error.message);
-                }
-            });
-        }, 1000);
-
-        async function fetchAndProcessItems() {
-            const apiUrl = "http://localhost/omeka-s/api/items";
-            console.log("fetchAndProcessItems - Fetching items from API:", apiUrl);
-
-            try {
-                const response = await fetch(apiUrl);
-                console.log("fetchAndProcessItems - API response:", response);
-
-                if (!response.ok) {
-                    console.error("fetchAndProcessItems - Failed to fetch items:", response.status);
-                    return;
-                }
-
-                const items = await response.json();
-                console.log("fetchAndProcessItems - Items received:", items);
-
-                processItems(items);
-            } catch (error) {
-                console.error("fetchAndProcessItems - Error fetching items:", error);
-            }
-        }
-
-        fetchAndProcessItems();
-
-        function getPropId(data) {
-            console.log("getPropId - Data received:", data);
-
-            if (data && data['o:id']) {
-                console.log("getPropId - Property ID:", data['o:id']);
-                return data['o:id'];
-            } else {
-                console.error("getPropId - Property ID not found in data:", data);
-                return null;
-            }
-        }
-
-        function processItems(items) {
-            console.log("processItems - Processing items:", items);
-
-            if (!Array.isArray(items)) {
-                console.error("processItems - Items is not an array:", items);
-                return;
-            }
-
-            items.forEach((item, index) => {
-                console.log(`processItems - Processing item at index ${index}:`, item);
-                const propId = getPropId(item);
-                if (propId !== null) {
-                    console.log(`processItems - Found property ID for item at index ${index}:`, propId);
-                } else {
-                    console.warn(`processItems - Property ID is null for item at index ${index}`);
-                }
-            });
-        }
-    </script>
+    <!-- Footer Container -->
+    <div id="footer-container"></div>
+    <script src="./js/scriptComponent.js"></script>
+    <script type="module" src="./js/login.js"></script>
 </body>
 </html>

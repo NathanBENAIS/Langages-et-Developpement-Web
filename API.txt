@@ -1,0 +1,6 @@
+API key successfully created.
+
+Here is your key ID and credential for access to the API. WARNING: "key_credential" will be unretrievable after you navigate away from this page.
+
+key_identity=K0DTO51WJeHaNmmCuwMXwero9CLsxiAw
+key_credential=9JDmKbxxRslkLzhJb4jC1LkWk3A7czr9
