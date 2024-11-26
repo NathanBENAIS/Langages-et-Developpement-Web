@@ -1,9 +1,80 @@
+import { auth } from "../module/auth.js";
+import { ToastManager } from "./toastManager.js";
+
+// Configuration de l'authentification Omeka-S
+const a = new auth({
+    mail: 'samuel.szoniecky@univ-paris8.fr',
+    apiOmk: 'http://localhost/omeka-s/api/',
+    ident: 'iF0FtB1maVYlCGq9QpfiwnBiVe80u2kO',
+    key: 'YKuLrLZqQpBUQW9IGlQWHWkkdEQQd1W8',
+});
+
+const toast = new ToastManager();
+
 // Variables globales pour le dashboard
 let globalChartData = null;
 let isChartInitialized = false;
 let progressionChart = null;
 let monthlyChart = null;
 let goalsChart = null;
+
+
+// Fonction pour vérifier l'authentification avant de charger les données
+async function checkAuthentication() {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) {
+        toast.show("Veuillez vous connecter pour accéder au dashboard", "error");
+        return false;
+    }
+    return true;
+}
+
+
+// Fonction pour rechercher les trajets d'un utilisateur
+function findUserTrajets(userId) {
+    return new Promise((resolve, reject) => {
+        try {
+            // Requête pour récupérer tous les trajets
+            const query = `resource_class_id[]=114`;  // ID de la classe Trajet
+            
+            console.log("Query construite:", query);
+            
+            a.omk.searchItems(query, (response) => {
+                console.log("Réponse recherche initiale:", response);
+                
+                if (response && response.length > 0) {
+                    // Filtrer les trajets pour l'utilisateur spécifique
+                    const trajets = response.filter(item => {
+                        if (item['@type'].includes('fup8:Trajet') && item['fup8:possedeTrajet']) {
+                            try {
+                                return item['fup8:possedeTrajet'].some(trajet => {
+                                    const trajetData = JSON.parse(trajet['@value']);
+                                    return trajetData['o:id'] === userId;
+                                });
+                            } catch (e) {
+                                console.error("Erreur parsing trajet:", e);
+                                return false;
+                            }
+                        }
+                        return false;
+                    });
+                    
+                    console.log("Trajets filtrés pour l'utilisateur:", trajets);
+                    resolve(trajets);
+                } else {
+                    console.log("Aucun trajet trouvé");
+                    resolve([]);
+                }
+            });
+        } catch (error) {
+            console.error("Erreur lors de la recherche des trajets:", error);
+            reject(error);
+        }
+    });
+}
+
+
+
 
 // Fonction de test pour vérifier l'accès aux données
 function testDataAccess(data) {
@@ -103,39 +174,143 @@ function processData(data, selectedRoute) {
     return filteredData;
 }
 
-// Fonction de chargement des données
-function loadData() {
-    d3.csv(CONFIG.csvUrl)
-    .then((data) => {     
-        testDataAccess(data);
-        globalChartData = data;
 
-        // Remplir le filtre avec les noms de trajets uniques
-        const uniqueRoutes = [...new Set(data.map(item => item["Nom du trajet"]))].filter(Boolean);
-        const routeFilter = document.getElementById("route-filter");
 
-        uniqueRoutes.forEach(route => {
-            const option = document.createElement("option");
-            option.value = route;
-            option.textContent = route;
-            routeFilter.appendChild(option);
+
+
+function extractTrajetDetails(trajet) {
+    console.log("Extraction des détails du trajet:", trajet);
+    
+    const details = {
+        id: trajet['o:id'],
+        nom: '',
+        depart: '',
+        arrivee: '',
+        voiture: null,
+        transportEnCommun: null,
+        velo: null,
+        marche: null
+    };
+
+    try {
+        // Nom du trajet
+        if (trajet['fup8:nomTrajet'] && trajet['fup8:nomTrajet'][0]) {
+            details.nom = trajet['fup8:nomTrajet'][0]['@value'];
+        }
+
+        // Points de départ et d'arrivée
+        if (trajet['fup8:pointDepart'] && trajet['fup8:pointDepart'][0]) {
+            details.depart = trajet['fup8:pointDepart'][0]['@value'];
+        }
+        if (trajet['fup8:pointArrivee'] && trajet['fup8:pointArrivee'][0]) {
+            details.arrivee = trajet['fup8:pointArrivee'][0]['@value'];
+        }
+
+        // Modes de transport
+        if (trajet['fup8:contientVoiture'] && trajet['fup8:contientVoiture'][0]) {
+            details.voiture = JSON.parse(trajet['fup8:contientVoiture'][0]['@value']);
+        }
+        if (trajet['fup8:contientTransportEnCommun'] && trajet['fup8:contientTransportEnCommun'][0]) {
+            details.transportEnCommun = JSON.parse(trajet['fup8:contientTransportEnCommun'][0]['@value']);
+        }
+        if (trajet['fup8:contientVelo'] && trajet['fup8:contientVelo'][0]) {
+            details.velo = JSON.parse(trajet['fup8:contientVelo'][0]['@value']);
+        }
+        if (trajet['fup8:contientMarche'] && trajet['fup8:contientMarche'][0]) {
+            details.marche = JSON.parse(trajet['fup8:contientMarche'][0]['@value']);
+        }
+    } catch (e) {
+        console.error("Erreur lors de l'extraction des détails:", e);
+    }
+
+    console.log("Détails extraits:", details);
+    return details;
+}
+
+// Modification de la fonction loadData pour gérer correctement les erreurs d'API
+async function loadData() {
+    if (!await checkAuthentication()) return;
+
+    try {
+        const userStr = localStorage.getItem('user');
+        const user = JSON.parse(userStr);
+        
+        // Vérifier d'abord la connexion à l'API
+        try {
+            const testResponse = await fetch(a.omk.api);
+            if (!testResponse.ok) {
+                throw new Error('Erreur de connexion à l\'API Omeka-S');
+            }
+        } catch (apiError) {
+            throw new Error('Impossible de se connecter à l\'API Omeka-S. Vérifiez que le serveur est en cours d\'exécution.');
+        }
+
+        // Récupération des trajets
+        const trajets = await findUserTrajets(user.id);
+        
+        if (!trajets || trajets.length === 0) {
+            document.getElementById("transport-chart").innerHTML = `
+                <div class="text-center p-8">
+                    <div class="text-gray-500 text-xl">
+                        Aucun trajet trouvé pour cet utilisateur.
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        globalChartData = trajets.map(trajet => {
+            const details = extractTrajetDetails(trajet);
+            return {
+                "Nom du trajet": details.nom,
+                "Durée estimée en voiture (minutes)": details.voiture?.duration || 0,
+                "Durée estimée en Transport en Commum (minutes)": details.transportEnCommun?.duration || 0,
+                "Durée estimée à vélo (minutes)": details.velo?.duration || 0,
+                "Durée estimée à pied (minutes)": details.marche?.duration || 0,
+                "Estimation des émissions de CO₂ par la voiture": details.voiture?.carbon || 0,
+                "Estimation des émissions de CO₂ par les Transport en Commum": details.transportEnCommun?.carbon || 0,
+                "Estimation des émissions de CO₂ par le vélo": details.velo?.carbon || 0,
+                "Estimation des émissions de CO₂ à pied": details.marche?.carbon || 0
+            };
         });
 
-        routeFilter.addEventListener("change", (e) => {
-            createChart(e.target.value);
-        });
-
+        setupRouteFilter();
         createChart("all");
+        initializeChartJsGraphs(globalChartData);
+        
+        const processedData = processData(globalChartData, "all");
+        initializeDataTable(processedData);
+        
         isChartInitialized = true;
-    })
-    .catch((error) => {
+
+    } catch (error) {
         console.error("Erreur lors du chargement des données:", error);
+        toast.show(error.message, "error");
         document.getElementById("transport-chart").innerHTML = `
             <div class="text-red-500 text-center">
                 <p>Erreur lors du chargement des données</p>
                 <p class="text-sm">${error.message}</p>
             </div>
         `;
+    }
+}
+
+// Fonction pour configurer le filtre des trajets
+function setupRouteFilter() {
+    const uniqueRoutes = [...new Set(globalChartData.map(item => item["Nom du trajet"]))].filter(Boolean);
+    const routeFilter = document.getElementById("route-filter");
+    
+    routeFilter.innerHTML = '<option value="all">Tous les trajets</option>';
+    uniqueRoutes.forEach(route => {
+        const option = document.createElement("option");
+        option.value = route;
+        option.textContent = route;
+        routeFilter.appendChild(option);
+    });
+
+    routeFilter.addEventListener("change", (e) => {
+        createChart(e.target.value);
+        updateChartJsGraphs(globalChartData, e.target.value);
     });
 }
 
@@ -452,53 +627,126 @@ function createChart(selectedRoute) {
       .attr("font-weight", "bold")
       .text("Comparaison des modes de transport");
 }
-// Nouvelle fonction pour traiter les données pour Chart.js
-// Modifiez la fonction processChartJsData pour ne pas dépendre de la date
-// Dans votre fonction processChartJsData
+// fonction pour traiter les données pour Chart.js
+
+// ici 
+// Fonction modifiée pour traiter les données pour Chart.js
 function processChartJsData(data, selectedRoute) {
     const filteredData = selectedRoute === "all" ? data : data.filter(d => d["Nom du trajet"] === selectedRoute);
     
-    // Vérifier si les données sont disponibles
     if (!filteredData || filteredData.length === 0) {
-        // Retourner des valeurs par défaut si pas de données
         return [];
     }
 
+    // Utiliser les 6 derniers mois (ou moins si moins de données disponibles)
     const months = ['M-6', 'M-5', 'M-4', 'M-3', 'M-2', 'M-1'];
     
-    // Obtenir les valeurs de base avec vérification de sécurité
-    const baseValues = {
-        car: parseFloat(filteredData[0]['Estimation des émissions de CO₂ par la voiture'] || 0),
-        transit: parseFloat(filteredData[0]['Estimation des émissions de CO₂ par les Transport en Commum'] || 0),
-        bike: parseFloat(filteredData[0]['Estimation des émissions de CO₂ par le vélo'] || 0),
-        walk: parseFloat(filteredData[0]['Estimation des émissions de CO₂ à pied'] || 0)
+    // Calculer les moyennes des valeurs actuelles
+    const currentValues = filteredData.reduce((acc, trajet) => {
+        return {
+            car: acc.car + (parseFloat(trajet["Estimation des émissions de CO₂ par la voiture"]) || 0),
+            transit: acc.transit + (parseFloat(trajet["Estimation des émissions de CO₂ par les Transport en Commum"]) || 0),
+            bike: acc.bike + (parseFloat(trajet["Estimation des émissions de CO₂ par le vélo"]) || 0),
+            walk: acc.walk + (parseFloat(trajet["Estimation des émissions de CO₂ à pied"]) || 0),
+            count: acc.count + 1
+        };
+    }, { car: 0, transit: 0, bike: 0, walk: 0, count: 0 });
+
+    // Calculer les moyennes
+    const averages = {
+        car: currentValues.car / currentValues.count,
+        transit: currentValues.transit / currentValues.count,
+        bike: currentValues.bike / currentValues.count,
+        walk: currentValues.walk / currentValues.count
     };
 
-    // Le reste de votre code reste inchangé
-    const generateTrend = (baseValue) => {
+    // Générer des données historiques simulées plus réalistes
+    const generateHistoricalData = (baseValue) => {
         const trend = [];
         let currentValue = baseValue;
+        
         for (let i = 0; i < 6; i++) {
-            const variation = 0.85 + (Math.random() * 0.3);
+            // Variation plus petite pour des données plus réalistes
+            const variation = 0.9 + (Math.random() * 0.2); // variation de ±10%
             currentValue = Math.round(baseValue * variation);
-            trend.push(currentValue);
+            trend.unshift(currentValue); // Ajouter au début pour avoir les données les plus récentes à la fin
         }
         return trend;
     };
 
-    const carTrend = generateTrend(baseValues.car);
-    const transitTrend = generateTrend(baseValues.transit);
-    const bikeTrend = generateTrend(baseValues.bike);
-    const walkTrend = generateTrend(baseValues.walk);
+    // Générer les tendances pour chaque mode de transport
+    const carTrend = generateHistoricalData(averages.car);
+    const transitTrend = generateHistoricalData(averages.transit);
+    const bikeTrend = generateHistoricalData(averages.bike);
+    const walkTrend = generateHistoricalData(averages.walk);
 
-    return months.map((month, index) => ({
+    // Créer le jeu de données final
+    const result = months.map((month, index) => ({
         month: month,
         car: carTrend[index],
         transit: transitTrend[index],
         bike: bikeTrend[index],
         walk: walkTrend[index]
     }));
+
+    console.log("Données traitées pour Chart.js:", result);
+    return result;
 }
+
+// Fonction modifiée pour mettre à jour les graphiques Chart.js
+function updateChartJsGraphs(data, selectedRoute) {
+    const monthlyData = processChartJsData(data, selectedRoute);
+
+    if (!monthlyData || monthlyData.length === 0) {
+        console.warn('Pas de données disponibles pour ce trajet');
+        return;
+    }
+
+    try {
+        // Mise à jour du graphique de progression
+        if (progressionChart) {
+            progressionChart.data.labels = monthlyData.map(d => d.month);
+            progressionChart.data.datasets[0].data = monthlyData.map(d => d.car);
+            progressionChart.data.datasets[1].data = monthlyData.map(d => d.transit);
+            progressionChart.data.datasets[2].data = monthlyData.map(d => d.bike);
+            progressionChart.data.datasets[3].data = monthlyData.map(d => d.walk);
+            progressionChart.update();
+        }
+
+        // Mise à jour du graphique mensuel
+        if (monthlyChart) {
+            const lastTwo = monthlyData.slice(-2);
+            monthlyChart.data.datasets[0].data = [
+                lastTwo[0].car,
+                lastTwo[0].transit,
+                lastTwo[0].bike,
+                lastTwo[0].walk
+            ];
+            monthlyChart.data.datasets[1].data = [
+                lastTwo[1].car,
+                lastTwo[1].transit,
+                lastTwo[1].bike,
+                lastTwo[1].walk
+            ];
+            monthlyChart.update();
+        }
+
+        // Mise à jour du graphique d'objectifs
+        if (goalsChart) {
+            const totalEmissions = monthlyData.map(d => d.car + d.transit + d.bike + d.walk);
+            const maxEmission = Math.max(...totalEmissions);
+            const objectif = maxEmission * 0.7;  // Objectif de réduction de 30%
+
+            goalsChart.data.datasets[0].data = Array(monthlyData.length).fill(objectif);
+            goalsChart.data.datasets[1].data = totalEmissions;
+            goalsChart.update();
+        }
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour des graphiques:', error);
+    }
+}
+// ici 
+
 
 
 
@@ -866,152 +1114,50 @@ function initializeDataTable(processedData) {
 function initializeDashboard() {
     if (isChartInitialized) return;
 
-    const dashboardContainer = document.getElementById("dashboard");
-    dashboardContainer.innerHTML = "";
+    checkAuthentication().then(isAuthenticated => {
+        if (!isAuthenticated) return;
 
-    // Filtre existant
-    const filterContainer = document.createElement("div");
-    filterContainer.className = "mb-6";
-    filterContainer.innerHTML = `
-        <div class="bg-white p-4 rounded-lg shadow-md">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Sélectionner un trajet :</label>
-            <select id="route-filter" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="all">Tous les trajets</option>
-            </select>
-        </div>
-    `;
-    dashboardContainer.appendChild(filterContainer);
-
-    // Graphique D3.js existant
-    const chartContainer = document.createElement("div");
-    chartContainer.className = "bg-white p-4 rounded-lg shadow-md mt-4";
-    chartContainer.innerHTML = `
-        <div id="transport-chart" style="width: 100%; height: 600px;"></div>
-    `;
-    dashboardContainer.appendChild(chartContainer);
-
-    // Graphiques Chart.js existants
-    const chartjsContainer = document.createElement("div");
-    chartjsContainer.className = "grid grid-cols-1 md:grid-cols-2 gap-4 mt-4";
-    chartjsContainer.innerHTML = `
-        <div class="bg-white p-4 rounded-lg shadow-md">
-            <canvas id="progressionChart" height="300"></canvas>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow-md">
-            <canvas id="monthlyChart" height="300"></canvas>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow-md md:col-span-2">
-            <canvas id="goalsChart" height="200"></canvas>
-        </div>
-    `;
-    dashboardContainer.appendChild(chartjsContainer);
-
-    // Bouton d'export (NOUVEAU)
-    const exportButtonContainer = document.createElement('div');
-    exportButtonContainer.className = 'bg-white p-4 rounded-lg shadow-md mt-4';
-    exportButtonContainer.innerHTML = `
-        <button id="exportChartsBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-            Exporter tous les graphiques en PDF
-        </button>
-    `;
-    dashboardContainer.appendChild(exportButtonContainer);
-
-    // Ajouter l'écouteur d'événement pour l'export (NOUVEAU)
-    document.getElementById('exportChartsBtn').addEventListener('click', exportChartsToPDF);
-
-    // Ajouter le tableau DataTable
-    const tableContainer = createDataTable();
-    dashboardContainer.appendChild(tableContainer);
-
-    loadData();
-}
-
-// Fonction de chargement des données modifiée
-function loadData() {
-    d3.csv(CONFIG.csvUrl)
-    .then((data) => {     
-        testDataAccess(data);
-        globalChartData = data;
-
-        // Code existant pour D3.js
-        const uniqueRoutes = [...new Set(data.map(item => item["Nom du trajet"]))].filter(Boolean);
-        const routeFilter = document.getElementById("route-filter");
-
-        uniqueRoutes.forEach(route => {
-            const option = document.createElement("option");
-            option.value = route;
-            option.textContent = route;
-            routeFilter.appendChild(option);
-        });
-
-        routeFilter.addEventListener("change", (e) => {
-            createChart(e.target.value);
-            updateChartJsGraphs(data, e.target.value);
-        });
-
-        createChart("all");
-        initializeChartJsGraphs(data);
-        isChartInitialized = true;
-    })
-    .catch((error) => {
-        console.error("Erreur lors du chargement des données:", error);
-        document.getElementById("transport-chart").innerHTML = `
-            <div class="text-red-500 text-center">
-                <p>Erreur lors du chargement des données</p>
-                <p class="text-sm">${error.message}</p>
+        const dashboardContainer = document.getElementById("dashboard");
+        dashboardContainer.innerHTML = `
+            <div class="mb-6">
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Sélectionner un trajet :</label>
+                    <select id="route-filter" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">Tous les trajets</option>
+                    </select>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                <div id="transport-chart" style="width: 100%; height: 600px;"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <canvas id="progressionChart" height="300"></canvas>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <canvas id="monthlyChart" height="300"></canvas>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-md md:col-span-2">
+                    <canvas id="goalsChart" height="200"></canvas>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                <button id="exportChartsBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Exporter tous les graphiques en PDF
+                </button>
+            </div>
+            <div id="data-table-container" class="bg-white p-4 rounded-lg shadow-md mt-4">
+                <table id="dataTable" class="w-full"></table>
             </div>
         `;
+
+        document.getElementById('exportChartsBtn').addEventListener('click', exportChartsToPDF);
+        loadData();
     });
 }
 
-// Fonction pour mettre à jour les graphiques Chart.js
-function updateChartJsGraphs(data, selectedRoute) {
-    const filteredData = selectedRoute === "all" ? data : data.filter(d => d["Nom du trajet"] === selectedRoute);
-    const monthlyData = processChartJsData(filteredData);
 
-    if (!monthlyData || monthlyData.length === 0) {
-        console.warn('Pas de données disponibles pour ce trajet');
-        return;
-    }
 
-    // Mettre à jour les données des graphiques
-    if (progressionChart && monthlyChart && goalsChart) {
-        try {
-            // Mise à jour du graphique de progression
-            progressionChart.data.labels = monthlyData.map(d => d.month);
-            progressionChart.data.datasets[0].data = monthlyData.map(d => d.car);
-            progressionChart.data.datasets[1].data = monthlyData.map(d => d.transit);
-            progressionChart.update();
-
-            // Mise à jour de la comparaison mensuelle
-            const lastTwo = monthlyData.slice(-2);
-            if (lastTwo.length === 2) {
-                monthlyChart.data.datasets[0].data = [
-                    lastTwo[0].car,
-                    lastTwo[0].transit,
-                    lastTwo[0].bike,
-                    lastTwo[0].walk
-                ];
-                monthlyChart.data.datasets[1].data = [
-                    lastTwo[1].car,
-                    lastTwo[1].transit,
-                    lastTwo[1].bike,
-                    lastTwo[1].walk
-                ];
-                monthlyChart.update();
-            }
-
-            // Mise à jour des Objectifs vs Résultat
-            const actualData = monthlyData.map(d => d.car + d.transit + d.bike + d.walk);
-            const objective = Math.max(...actualData) * 0.8;
-            goalsChart.data.datasets[0].data = Array(monthlyData.length).fill(objective);
-            goalsChart.data.datasets[1].data = actualData;
-            goalsChart.update();
-        } catch (error) {
-            console.error('Erreur lors de la mise à jour des graphiques:', error);
-        }
-    }
-}
 
 // Initialisation au chargement de la page
 document.addEventListener("DOMContentLoaded", () => {
@@ -1024,6 +1170,5 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     } else {
         initializeDashboard();
-        initializeDataTable(chartData);
     }
 });

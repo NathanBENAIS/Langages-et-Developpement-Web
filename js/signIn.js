@@ -12,7 +12,7 @@ let a = new auth({
     key: 'YKuLrLZqQpBUQW9IGlQWHWkkdEQQd1W8',
 });
 
-
+console.log("Initialisation de l'objet auth:", a);
 
 // Fonction de validation des champs
 function validateFields(firstname, lastname, email) {
