@@ -25,6 +25,7 @@ async function loadComponents() {
             const routeResponse = await fetch('route.html');
             const routeData = await routeResponse.text();
             containers.route.innerHTML = routeData;
+            containers.route.dispatchEvent(new Event('routeLoaded')); // Ajouter cette ligne
         }
 
         if (containers.weather) {

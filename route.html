@@ -23,9 +23,36 @@
                         <input type="text" id="arrivee" placeholder="Ex: Place de la Bastille, Paris" class="p-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
                     
-                    <button onclick="calculateAllRoutes()" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
-                        Calculer les Itinéraires
-                    </button>
+                    <div class="flex justify-end gap-4">
+                        <!-- Bouton Calculer -->
+                        <button 
+                            onclick="calculateAllRoutes()" 
+                            class="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            title="Calculer les itinéraires pour le trajet"
+                            aria-label="Calculer les itinéraires"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Calculer les Itinéraires
+                        </button>
+                    
+                        <!-- Bouton Sauvegarder -->
+                        <button 
+                            id="saveRouteButton" 
+                            class="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Sauvegarder le trajet dans votre liste"
+                            aria-label="Sauvegarder le trajet"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Sauvegarder le Trajet
+                        </button>
+                    </div>
+                    
+                    
+                    
                 </div>
             </div>
             
@@ -95,3 +122,4 @@
         </div>
     </div>
 </div>
+<script src="./js/trajetManager.js"></script>

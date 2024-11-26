@@ -1,32 +1,5 @@
-    <style>
-        #loading-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        .loader {
-            border: 5px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 5px solid #4338ca;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
 
-
-    <!-- Loading Indicator -->
+<!-- Loading Indicator -->
     <div id="loading-container">
         <div class="loader"></div>
     </div>
@@ -38,7 +11,7 @@
     <div class="max-w-4xl mx-auto">
         <!-- Weather Container -->
         <div class="mx-auto bg-white rounded-lg shadow-lg p-6" id="weather-container">
-            <h2 class="text-2xl font-bold text-center text-gray-800 mb-8">Météo et Impact sur vos Déplacements</h2>
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-8">Prévisions Météo : Voyagez en Toute Sérénité</h2>
 
             <!-- Recherche ville -->
             <div class="mb-6">
@@ -98,3 +71,29 @@
     </div>
 
     <script src="weather.js"></script>
+    <style>
+        #loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 5px solid #4338ca;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>

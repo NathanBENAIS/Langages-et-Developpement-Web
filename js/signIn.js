@@ -1,155 +1,106 @@
-import { auth } from '../module/auth.js';
-import { omk } from '../module/omk.js';
-import { loader } from '../module/loader.js';
-import { ToastManager } from './ToastManager.js';
+import { auth } from "../module/auth.js";
+import { ToastManager } from "./toastManager.js";
 
-class SignUpManager {
-    constructor() {
-        this.loadingSpinner = new loader();
-        this.adminAuth = null;
-        this.omk = null;
-        this.initialized = false;
-        this.toastManager = new ToastManager();
-    }
+// Initialisation du gestionnaire de toast
+const toast = new ToastManager();
 
-    async initialize() {
-        try {
-            console.log("Initialisation du SignUpManager...");
-            
-            // Créer l'instance OMK directement
-            this.omk = new omk({
-                api: 'http://localhost/omeka-s/api/',
-                key: "9JDmKbxxRslkLzhJb4jC1LkWk3A7czr9",
-                ident: "K0DTO51WJeHaNmmCuwMXwero9CLsxiAw",
-                mail: "nathan.benais@gmail.com",
-                vocabs: ["dcterms", "bc", "fup8"]
-            });
-
-            // Attendre que l'OMK soit initialisé
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            // Initialisation de l'authentification
-            this.adminAuth = new auth({
-                mail: "nathan.benais@gmail.com",
-                apiOmk: "http://localhost/omeka-s/api/",
-                ident: "K0DTO51WJeHaNmmCuwMXwero9CLsxiAw",
-                key: "9JDmKbxxRslkLzhJb4jC1LkWk3A7czr9",
-                vocabs: ["dcterms", "bc", "fup8"],
-                omk: this.omk
-            });
-
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            this.initialized = true;
-            console.log("Initialisation terminée");
-            this.setupFormListener();
-        } catch (error) {
-            console.error("Erreur d'initialisation:", error);
-            this.toastManager.show("Erreur d'initialisation du système", 'error');
-            throw error;
-        }
-    }
-
-    async createUser(firstname, lastname, email) {
-        if (!this.initialized || !this.omk) {
-            throw new Error("Le système n'est pas initialisé");
-        }
-
-        try {
-            const userData = {
-                'o:resource_template': 'Mobilité Durable - Utilisateur',
-                'o:resource_class': 'fup8:Utilisateur',
-                'fup8:prenom': [{ p: 'Prénom', v: firstname }],
-                'fup8:nom': [{ p: 'Nom', v: lastname }],
-                'fup8:email': [{ p: 'Email', v: email }],
-                'fup8:possedeTrajet': [{ p: 'Possède trajet', v: 'Non' }]
-            };
-
-            console.log('Données à envoyer:', userData);
-
-            // Vérifier si l'email existe déjà
-            const existingUser = await this.searchUserByEmail(email);
-            if (existingUser) {
-                throw new Error('Un compte existe déjà avec cet email');
-            }
-
-            return new Promise((resolve, reject) => {
-                this.omk.createItem(userData, (result) => {
-                    if (result && result['o:id']) {
-                        // Stocker les informations utilisateur
-                        localStorage.setItem('user', JSON.stringify({
-                            id: result['o:id'],
-                            prenom: firstname,
-                            nom: lastname,
-                            email: email
-                        }));
-
-                        this.toastManager.show('Compte créé avec succès!', 'success');
-                        
-                        setTimeout(() => {
-                            window.location.href = 'login.html';
-                        }, 1500);
-
-                        resolve(result);
-                    } else {
-                        reject(new Error('Erreur lors de la création du compte'));
-                    }
-                });
-            });
-        } catch (error) {
-            console.error('Erreur lors de la création:', error);
-            this.toastManager.show(error.message || 'Erreur lors de la création du compte', 'error');
-            throw error;
-        }
-    }
-
-    async searchUserByEmail(email) {
-        try {
-            const query = `property[0][property]=fup8:email&property[0][type]=eq&property[0][text]=${encodeURIComponent(email)}`;
-            const response = await this.omk.searchItems(query);
-            return response && response.length > 0 ? response[0] : null;
-        } catch (error) {
-            console.error('Erreur de recherche:', error);
-            return null;
-        }
-    }
-
-    setupFormListener() {
-        const form = document.getElementById('signupForm');
-        if (!form) {
-            console.error("Formulaire d'inscription non trouvé");
-            return;
-        }
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            this.loadingSpinner.show();
-
-            try {
-                const firstname = document.getElementById('firstname').value;
-                const lastname = document.getElementById('lastname').value;
-                const email = document.getElementById('email').value;
-
-                await this.createUser(firstname, lastname, email);
-
-            } catch (error) {
-                console.error('Erreur:', error);
-                this.toastManager.show(error.message || 'Erreur lors de la création du compte', 'error');
-            } finally {
-                this.loadingSpinner.hide(true);
-            }
-        });
-    }
-}
-
-// Initialisation
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        const signUpManager = new SignUpManager();
-        await signUpManager.initialize();
-    } catch (error) {
-        console.error("Erreur fatale:", error);
-    }
+const apiUrl = 'http://localhost/omeka-s/api/';
+let a = new auth({
+    mail: 'samuel.szoniecky@univ-paris8.fr',
+    apiOmk: 'http://localhost/omeka-s/api/',
+    ident: 'iF0FtB1maVYlCGq9QpfiwnBiVe80u2kO',
+    key: 'YKuLrLZqQpBUQW9IGlQWHWkkdEQQd1W8',
 });
 
-export { SignUpManager };
+
+
+// Fonction de validation des champs
+function validateFields(firstname, lastname, email) {
+    if (!firstname.trim()) {
+        window.toastManager.show("Le prénom est requis", "error");
+        return false;
+    }
+    if (!lastname.trim()) {
+        window.toastManager.show("Le nom est requis", "error");
+        return false;
+    }
+    if (!email.trim()) {
+        window.toastManager.show("L'email est requis", "error");
+        return false;
+    }
+    // Validation basique de l'email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        window.toastManager.show("Veuillez entrer une adresse email valide", "error");
+        return false;
+    }
+    return true;
+}
+
+d3.select("#btnRegister").on("click", function(event) {
+    event.preventDefault();
+    console.log("Bouton 'S'INSCRIRE' cliqué");
+
+    // Collecter les données du formulaire
+    const firstname = d3.select("#firstname").property("value");
+    const lastname = d3.select("#lastname").property("value");
+    const email = d3.select("#email").property("value");
+
+    console.log("Prénom:", firstname);
+    console.log("Nom:", lastname);
+    console.log("Email:", email);
+
+    // Valider les champs
+    if (!validateFields(firstname, lastname, email)) {
+        return;
+    }
+
+    // Afficher un toast de chargement
+    toast.show("Création du compte en cours...", "warning");
+
+    // Construire les données pour Omeka
+    let data = {
+        "o:resource_class": "fup8:Utilisateur",
+        "o:resource_template": "Mobilité Durable - Utilisateur",
+        "fup8:prenom": firstname,
+        "fup8:nom": lastname,
+        "fup8:email": email,
+    };
+
+    console.log("Données préparées pour Omeka:", data);
+    a.omk.createItem(data, function(response) {
+        console.log(response);
+        if (response != null) {
+            // Succès de la création
+            toast.show("Compte créé avec succès !", "success");
+    
+           
+        } else {
+            // Erreur lors de la création
+            toast.show("Erreur lors de la création du compte. Veuillez réessayer.", "error");
+        }
+        d3.select("#resultCrea").text(JSON.stringify(response, null, 2));
+    });
+});
+
+// Tracer le chargement complet du DOM
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('DOM chargé et prêt à être manipulé');
+    const signupForm = document.getElementById('signupForm');
+    
+    // Gestion de la soumission du formulaire
+    signupForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        console.log("Soumission du formulaire interceptée");
+    });
+
+    // Suivre les changements dans les champs d'entrée
+    const inputs = signupForm.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.addEventListener('change', function (e) {
+            console.log(`Modification dans le champ ${e.target.id}:`, e.target.value);
+        });
+    });
+});
+
+console.log("Fin de l'initialisation du script.");

@@ -1,199 +1,144 @@
-import { auth } from '../module/auth.js';
-import { omk } from '../module/omk.js';
-import { loader } from '../module/loader.js';
-import { ToastManager } from './ToastManager.js';
-
-class LoginManager {
-    constructor() {
-        this.loadingSpinner = new loader();
-        this.adminAuth = null;
-        this.omk = null;
-        this.initialized = false;
-        this.apiBase = 'http://localhost/omeka-s/api';
-        this.toastManager = new ToastManager();
-    }
-
-    async initializeAuth() {
-        try {
-            console.log("Initialisation de l'authentification...");
-            
-            // Créer l'instance OMK directement
-            this.omk = new omk({
-                api: `${this.apiBase}/`,
-                key: "9JDmKbxxRslkLzhJb4jC1LkWk3A7czr9",
-                ident: "K0DTO51WJeHaNmmCuwMXwero9CLsxiAw",
-                mail: "nathan.benais@gmail.com",
-                vocabs: ["dcterms", "bc"]
-            });
-
-            console.log("Instance OMK créée:", this.omk);
-
-            // Attendre l'initialisation d'OMK
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            // Créer l'instance auth avec l'OMK déjà initialisé
-            this.adminAuth = new auth({
-                mail: "nathan.benais@gmail.com",
-                apiOmk: `${this.apiBase}/`,
-                ident: "K0DTO51WJeHaNmmCuwMXwero9CLsxiAw",
-                key: "9JDmKbxxRslkLzhJb4jC1LkWk3A7czr9",
-                vocabs: ["dcterms", "bc"],
-                omk: this.omk
-            });
-
-            console.log("Instance auth créée avec OMK:", this.adminAuth);
-
-            // Charger les propriétés
-            if (this.omk && typeof this.omk.getProps === 'function') {
-                await Promise.all([
-                    this.omk.getProps("dcterms"),
-                    this.omk.getProps("bc")
-                ]);
-                console.log("Propriétés chargées");
-            }
-
-            return true;
-        } catch (error) {
-            console.error("Erreur d'initialisation:", error);
-            throw error;
-        }
-    }
-
-    async searchUser(email) {
-        if (!this.omk) {
-            throw new Error("OMK n'est pas initialisé");
-        }
-
-        try {
-            // Fetch all items first
-            const items = await this.omk.getAllItems('');
-            
-            // Search for matching email
-            const user = items.find(item => {
-                if (!item['fup8:email'] || !item['fup8:email'][0]) return false;
-                try {
-                    const emailValue = item['fup8:email'][0]['@value'];
-                    const parsedEmail = JSON.parse(emailValue);
-                    return parsedEmail.v === email;
-                } catch (e) {
-                    console.warn('Error parsing email:', e);
-                    return false;
-                }
-            });
-
-            console.log("Found user:", user);
-            return user;
-        } catch (error) {
-            console.error("Erreur de recherche utilisateur:", error);
-            throw error;
-        }
-    }
-
-    extractValue(item, property) {
-        try {
-            const propValue = item[property] && item[property][0] ? item[property][0]['@value'] : '';
-            if (!propValue) return '';
-            
-            try {
-                const parsed = JSON.parse(propValue);
-                return parsed.v || '';
-            } catch (e) {
-                // Si le parsing JSON échoue, retourner la valeur telle quelle
-                return propValue;
-            }
-        } catch (error) {
-            console.error(`Erreur d'extraction de la valeur ${property}:`, error);
-            return '';
-        }
-    }
-
-    async handleLogin(email) {
-        try {
-            console.log("Tentative de connexion pour:", email);
-            this.loadingSpinner.show();
-
-            if (!this.initialized) {
-                await this.initializeAuth();
-                this.initialized = true;
-            }
-
-            const user = await this.searchUser(email);
-            
-            if (!user) {
-                throw new Error('Aucun utilisateur trouvé avec cet email');
-            }
-
-            const userData = {
-                id: user['o:id'],
-                email: this.extractValue(user, 'fup8:email'),
-                prenom: this.extractValue(user, 'fup8:prenom'),
-                nom: this.extractValue(user, 'fup8:nom')
-            };
-
-            console.log("Données utilisateur extraites:", userData);
-
-            if (!this.validateUserData(userData)) {
-                throw new Error('Données utilisateur incomplètes');
-            }
-
-            localStorage.setItem('user', JSON.stringify(userData));
-            this.toastManager.show('Connexion réussie!', 'success');
-            
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1500);
-
-        } catch (error) {
-            console.error("Erreur de connexion:", error);
-            this.toastManager.show(error.message, 'error');
-        } finally {
-            this.loadingSpinner.hide(true);
-        }
-    }
-
-    validateUserData(userData) {
-        const isValid = !!(userData.id && userData.email && userData.prenom && userData.nom);
-        console.log("Validation des données utilisateur:", userData);
-        return isValid;
-    }
-
-    setupLoginForm() {
-        const loginForm = document.getElementById('loginForm');
-        if (!loginForm) {
-            console.error("Formulaire de connexion non trouvé");
-            return;
-        }
-
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const emailInput = document.getElementById('email');
-            if (!emailInput) return;
-            await this.handleLogin(emailInput.value);
-        });
-    }
-
-    async initialize() {
-        try {
-            console.log("Démarrage de l'initialisation...");
-            await this.initializeAuth();
-            this.setupLoginForm();
-            this.initialized = true;
-            console.log("Initialisation terminée avec succès");
-        } catch (error) {
-            console.error("Erreur d'initialisation:", error);
-            this.toastManager.show("Erreur d'initialisation du système", 'error');
-        }
-    }
-}
+import { auth } from "../module/auth.js";
+import { ToastManager } from "./toastManager.js";
 
 // Initialisation
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        const loginManager = new LoginManager();
-        await loginManager.initialize();
-    } catch (error) {
-        console.error("Erreur fatale:", error);
+const toast = new ToastManager();
+const a = new auth({
+    mail: 'samuel.szoniecky@univ-paris8.fr',
+    apiOmk: 'http://localhost/omeka-s/api/',
+    ident: 'iF0FtB1maVYlCGq9QpfiwnBiVe80u2kO',
+    key: 'YKuLrLZqQpBUQW9IGlQWHWkkdEQQd1W8',
+});
+
+console.log("Initialisation de l'objet auth:", a);
+
+// Fonction pour extraire les informations de l'utilisateur
+function extractUserInfo(user) {
+    return {
+        id: user['o:id'],
+        prenom: user['fup8:prenom'] ? user['fup8:prenom'][0]['@value'] : '',
+        nom: user['fup8:nom'] ? user['fup8:nom'][0]['@value'] : '',
+        email: user['fup8:email'] ? user['fup8:email'][0]['@value'] : ''
+    };
+}
+
+// Fonction pour rechercher un utilisateur par email
+function findUserByEmail(email) {
+    return new Promise((resolve, reject) => {
+        try {
+            const query = `property[0][property]=231&property[0][type]=eq&property[0][text]=${encodeURIComponent(email)}`;
+            a.omk.searchItems(query, (response) => {
+                console.log("Réponse recherche utilisateur:", response);
+                if (response && response.length > 0) {
+                    const users = response.filter(item => 
+                        item['@type'].includes('fup8:Utilisateur')
+                    );
+                    resolve(users);
+                } else {
+                    resolve([]);
+                }
+            });
+        } catch (error) {
+            console.error("Erreur lors de la recherche:", error);
+            reject(error);
+        }
+    });
+}
+
+// Gestionnaire de connexion
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            console.log("Tentative de connexion avec:", email);
+            
+            try {
+                toast.show("Vérification des identifiants...", "info");
+                
+                const users = await findUserByEmail(email);
+                console.log("Utilisateurs trouvés:", users);
+                
+                if (users.length > 0) {
+                    const user = users[0];
+                    const userEmail = user['fup8:email'] && user['fup8:email'][0] ? 
+                        user['fup8:email'][0]['@value'] : null;
+                    
+                    if (email === userEmail) {
+                        // Extraire et sauvegarder les informations de l'utilisateur
+                        const userInfo = extractUserInfo(user);
+                        localStorage.setItem('user', JSON.stringify(userInfo));
+                        
+                        toast.show("Connexion réussie!", "success");
+                        
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 1500);
+                    } else {
+                        toast.show("Email incorrect", "error");
+                    }
+                } else {
+                    toast.show("Utilisateur non trouvé", "error");
+                }
+            } catch (error) {
+                console.error("Erreur lors de la connexion:", error);
+                toast.show("Erreur lors de la connexion", "error");
+            }
+        });
     }
 });
 
-export { LoginManager };
+// Gestionnaire d'inscription
+d3.select("#btnRegister").on("click", function(event) {
+    event.preventDefault();
+    console.log("Bouton 'S'INSCRIRE' cliqué");
+
+    const firstname = d3.select("#firstname").property("value");
+    const lastname = d3.select("#lastname").property("value");
+    const email = d3.select("#email").property("value");
+
+    if (!firstname || !lastname || !email) {
+        toast.show("Tous les champs sont obligatoires", "error");
+        return;
+    }
+
+    // Création du compte
+    const data = {
+        "o:resource_class": "fup8:Utilisateur",
+        "o:resource_template": "Mobilité Durable - Utilisateur",
+        "fup8:prenom": firstname,
+        "fup8:nom": lastname,
+        "fup8:email": email,
+    };
+
+    // toast.show("Création du compte en cours...", "info");
+    
+    a.omk.createItem(data, function(response) {
+        console.log("Réponse création:", response);
+        if (response && response['o:id']) {
+            // Sauvegarder les informations de l'utilisateur
+            const userInfo = {
+                id: response['o:id'],
+                prenom: firstname,
+                nom: lastname,
+                email: email
+            };
+            localStorage.setItem('user', JSON.stringify(userInfo));
+            
+            toast.show("Compte créé avec succès!", "success");
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
+        } else {
+            toast.show("Erreur lors de la création du compte", "error");
+        }
+    });
+});
+
+// Fonction de déconnexion
+document.getElementById('logoutButton')?.addEventListener('click', () => {
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
+});

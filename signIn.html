@@ -7,6 +7,7 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <style>
         @import url('https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.min.css');
     </style>
@@ -32,7 +33,7 @@
                 <div class="w-full md:w-1/2 py-10 px-5 md:px-10">
                     <div class="text-center mb-10">
                         <h1 class="font-bold text-3xl text-gray-900">INSCRIPTION</h1>
-                        <p>Créez votre compte</p>
+                        <p>Créez votress compte</p>
                     </div>
                     <div>
                         <form id="signupForm">
@@ -69,8 +70,7 @@
                             </div>
                             <div class="flex -mx-3">
                                 <div class="w-full px-3 mb-12">
-                                    <button type="submit" class="block w-full max-w-xs mx-auto bg-indigo-500 hover:bg-indigo-700 focus:bg-indigo-700 text-white rounded-lg px-3 py-3 font-semibold">S'INSCRIRE</button>
-                                </div>
+                                    <button type="submit" id="btnRegister" class="block w-full max-w-xs mx-auto bg-indigo-500 hover:bg-indigo-700 focus:bg-indigo-700 text-white rounded-lg px-3 py-3 font-semibold">S'INSCRIRE</button>                                </div>
                             </div>
                         </form>
                         <div class="text-center">
@@ -88,7 +88,15 @@
     </div>
      <!-- Footer Container -->
      <div id="footer-container"></div>
-     <script type="module" src="./js/signIn.js"></script>
-     <script src="./js/scriptComponent.js"></script>
+     <script type="module" src="js/toastManager.js" ></script>
+
+
+
+        <script type="module" src="./js/signIn.js">
+  
+</script>
+
+
+
 </body>
-</html>
+</html>   
