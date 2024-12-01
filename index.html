@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparaison du Bilan Carbone d'un Trajet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!--  -->
+    
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!--  -->
+    <style>
+        #loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 5px solid #4338ca;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <style>
+        .dataTables_wrapper .dataTables_filter {
+            margin-bottom: 1rem;
+        }
+        .dataTables_wrapper .dataTables_length select {
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 0.5rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            margin: 0 0.25rem;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #3b82f6;
+            color: white !important;
+            border: 1px solid #3b82f6;
+        }
+        .dt-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .dt-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .buttons-excel {
+            background-color: #10B981;
+        }
+        .buttons-pdf {
+            background-color: #EF4444;
+        }
+        .buttons-print {
+            background-color: #3B82F6;
+        }
+        .dt-button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Loading Indicator -->
+    <div id="loading-container">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="alertBox" class="fixed top-4 right-4 hidden"></div>
+
+    <!-- Header Container -->
+    <div id="header-container"></div>
+
+    <!-- Main Content -->
+    <div class="mb-4 border-b border-gray-200 dark:border-gray-700 mx-auto" style="max-width: 72rem;">
+        <ul class="flex justify-center flex-wrap -mb-px text-sm font-medium text-center w-full" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
+            <li class="me-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg w-full" id="route-tab" data-tabs-target="#route" type="button" role="tab" aria-controls="route" aria-selected="false">Trajet</button>
+            </li>
+            <li class="me-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 w-full" id="dashboard-tab" data-tabs-target="#dashboard" type="button" role="tab" aria-controls="dashboard" aria-selected="false">Dashboard</button>
+            </li>
+            <li class="me-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 w-full" id="weather-tab" data-tabs-target="#weather" type="button" role="tab" aria-controls="weather" aria-selected="false">Météo</button>
+            </li>
+            <li role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 w-full" id="historical-tab" data-tabs-target="#historical" type="button" role="tab" aria-controls="historical" aria-selected="false">Historique</button>
+            </li>
+        </ul>
+    </div>
+
+    <div id="default-tab-content" class="mx-auto" style="max-width: 72rem;">
+        <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="route" role="tabpanel" aria-labelledby="route-tab">
+            <div id="route-container">
+
+             <!-- Spinner -->
+             <div role="status" class="flex flex-col items-center">
+                <svg aria-hidden="true" class="w-8 h-8 mb-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08162 50.5908C9.08162 74.0028 26.5882 91.5094 50 91.5094C73.4118 91.5094 90.9184 74.0028 90.9184 50.5908C90.9184 27.1789 73.4118 9.67234 50 9.67234C26.5882 9.67234 9.08162 27.1789 9.08162 50.5908Z" fill="currentColor"/>
+                    <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5536C95.2932 28.8227 92.871 24.3691 89.8167 20.348C85.8452 15.1192 80.8826 10.7231 75.2124 7.41289C69.5422 4.10268 63.2754 1.94025 56.7224 1.05112C51.7661 0.367572 46.7392 0.446843 41.8193 1.27873C39.2978 1.69858 37.8352 4.19778 38.4723 6.62326C39.1095 9.04874 41.603 10.4717 44.1273 10.1071C48.1725 9.5267 52.2562 9.45627 56.284 9.90295C61.864 10.5203 67.2886 12.3354 72.2036 15.2284C77.1185 18.1214 81.4293 21.9871 84.875 26.5872C87.3806 29.7396 89.3662 33.2602 90.7689 36.995C91.8167 39.6841 94.3118 40.9927 96.7372 40.3556H93.9676Z" fill="currentFill"/>
+                </svg>
+                <span class="sr-only">Loading...</span>
+                <!-- Texte sous le spinner -->
+                <p class="text-sm text-gray-500 dark:text-gray-400">Chargement des données...</p>
+            </div>
+
+            </div>
+        </div>
+        <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+            <p class="text-sm text-gray-500 dark:text-gray-400"> Pour accéder à cette page, veuillez vous connecter.</p>
+        </div>
+        <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="weather" role="tabpanel" aria-labelledby="settings-tab">
+            <div id="weather">
+                Cette page est en maintenance et sera bientôt disponible.
+            </div>
+        </div>
+        <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="historical" role="tabpanel" aria-labelledby="historical-tab">
+            <div id="data-cards">
+                <p class="text-sm text-gray-500 dark:text-gray-400"> Pour accéder à cette page, veuillez vous connecter.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Container -->
+    <div id="footer-container"></div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/config.js"></script> 
+    <script src="js/APIHere.js"></script>
+    <script src="js/scriptComponent.js"></script>
+    <script src="js/tabs.js"></script>
+    <script type="module" src="js/dashboard.js"></script>
+    <script type="module" src="js/cards.js"></script>
+    <script type="module" src="./js/trajetManager.js"></script>
+    <!-- <script type="module" src="js/tailwind.config.js"></script> -->
+
+    <script>
+        // Fonction pour montrer le loader
+        function showLoading() {
+            document.getElementById('loading-container').style.display = 'flex';
+        }
+
+        // Fonction pour cacher le loader
+        function hideLoading() {
+            document.getElementById('loading-container').style.display = 'none';
+        }
+
+        // Fonction pour afficher une alerte
+        function showAlert(message, type = 'error') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.className = `fixed top-4 right-4 p-4 rounded ${
+                type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+            }`;
+            alertBox.textContent = message;
+            alertBox.style.display = 'block';
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 3000);
+        }
+
+        // Vérification de l'utilisateur sans redirection
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const userStr = localStorage.getItem('user');
+                if (!userStr) {
+                    console.log('Aucun utilisateur connecté');
+                    return;
+                }
+
+                const user = JSON.parse(userStr);
+                // Vérifier que l'utilisateur a toutes les données nécessaires
+                if (!user || !user.id || !user.email || !user.prenom || !user.nom) {
+                    console.log('Données utilisateur incomplètes');
+                    localStorage.removeItem('user'); // Nettoyer le localStorage
+                    return;
+                }
+
+                // Si l'utilisateur est bien connecté, on peut continuer normalement
+                console.log('Utilisateur connecté:', user);
+                
+            } catch (error) {
+                console.error('Erreur lors de la vérification de l\'utilisateur:', error);
+                localStorage.removeItem('user');
+            }
+        });
+
+        // Initialiser les onglets
+        const tabElements = document.querySelectorAll('[role="tab"]');
+        tabElements.forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Retirer la classe active de tous les onglets
+                tabElements.forEach(t => {
+                    t.classList.remove('text-blue-600');
+                    t.classList.remove('border-blue-600');
+                    t.setAttribute('aria-selected', 'false');
+                });
+
+                // Ajouter la classe active à l'onglet cliqué
+                this.classList.add('text-blue-600');
+                this.classList.add('border-blue-600');
+                this.setAttribute('aria-selected', 'true');
+
+                // Cacher tous les contenus d'onglets
+                document.querySelectorAll('[role="tabpanel"]').forEach(panel => {
+                    panel.classList.add('hidden');
+                });
+
+                // Afficher le contenu de l'onglet sélectionné
+                const targetId = this.getAttribute('data-tabs-target');
+                document.querySelector(targetId).classList.remove('hidden');
+            });
+        });
+
+        // Activer le premier onglet par défaut
+        document.querySelector('[role="tab"]').click();
+    </script>
+</body>
+</html>
