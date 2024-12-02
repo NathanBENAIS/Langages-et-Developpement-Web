@@ -1,5 +1,5 @@
-// import { authInstance as a } from './config.js';
-import { pa as a } from '../module/authParams.js';
+import { authInstance as a } from './config.js';
+// import { pa as a } from '../module/authParams.js';
 import { ToastManager } from "./toastManager.js";
 
 // Initialisation
